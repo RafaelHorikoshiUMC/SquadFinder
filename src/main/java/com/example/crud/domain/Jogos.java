@@ -3,14 +3,14 @@ package com.example.crud.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-    @Table(name="bibliotecaJogos")
-    @Entity(name="bibliotecaJogos")
+    @Table(name="jogos")
+    @Entity(name="jogos")
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     @EqualsAndHashCode(of = "id")
-    public class BibliotecaJogos {
+    public class Jogos {
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
         private String id;
@@ -26,10 +26,10 @@ import lombok.*;
 
         private Boolean active;
 
-        public BibliotecaJogos(RequestBibliotecaJogos requestBibliotecaJogos){
-            this.nome = requestBibliotecaJogos.nome();
-            this.categoria = requestBibliotecaJogos.categoria();
-            this.plataforma = requestBibliotecaJogos.plataforma();
+        public Jogos(RequestJogos requestJogos){
+            this.nome = requestJogos.nome();
+            this.categoria = requestJogos.categoria();
+            this.plataforma = requestJogos.plataforma();
             this.active = true;
         }
     }

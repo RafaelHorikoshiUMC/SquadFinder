@@ -1,4 +1,4 @@
-CREATE TABLE biblioteca_jogos (
+CREATE TABLE jogos (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
     nome TEXT NOT NULL,
     categoria TEXT NOT NULL,
