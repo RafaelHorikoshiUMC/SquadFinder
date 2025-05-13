@@ -19,4 +19,6 @@ public class Depoimento {
     private String texto;
     private Usuario autor;
     private LocalDateTime dataCriacao;
+    private LocalDateTime dataAtualizacao;
 }
+

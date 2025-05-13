@@ -28,8 +28,8 @@
         <tr>
             <th>Id</th>
             <th>Texto</th>
-
-            <th>Data</th>
+            <th>Data De Criação</th>
+            <th>Última Atualização</th>
 
         </tr>
         </thead>
@@ -37,13 +37,14 @@
         <tr th:each="depoimento : ${depoimentos}">
             <td th:text="${depoimento.id}"></td>
             <td th:text="${depoimento.texto}"></td>
-
             <td th:text="${#temporals.format(depoimento.dataCriacao, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${#temporals.format(depoimento.dataAtualizacao, 'dd/MM/yyyy HH:mm')}"></td>
             <td>
                 <a th:href="@{'/depoimentos/editar/' + ${depoimento.id}}" class="btn btn-warning btn-sm">Editar</a>
 
                 <form th:action="@{/depoimentos/deletar(id=${depoimento.id})}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                    <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Tem certeza que deseja excluir este depoimento?');">Excluir</button>
                 </form>
 
             </td>
