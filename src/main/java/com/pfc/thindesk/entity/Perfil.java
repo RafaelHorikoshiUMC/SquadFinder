@@ -16,7 +16,8 @@ public class Perfil {
     private String id;
     private String apelido;
     private String nascimento;
-    private String generoPreferido;
+    private String generoPreferidoPrincipal;
+    private String generoPreferidoSecundario;
     private String comunicacao;
     private String plataforma;
     private String periodoOnline;

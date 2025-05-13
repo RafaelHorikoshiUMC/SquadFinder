@@ -1,5 +1,6 @@
 package com.pfc.thindesk.controller;
 
+import com.pfc.thindesk.PerfilMatchDTO;
 import com.pfc.thindesk.entity.*;
 import com.pfc.thindesk.repository.UsuarioRepository;
 import com.pfc.thindesk.service.*;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class HomeController {
@@ -32,6 +34,8 @@ public class HomeController {
     private SugestaoDeJogoService sugestaoDeJogoService;
     @Autowired
     private DepoimentoService depoimentoService;
+
+
 
     @GetMapping("/inicial")
     public String inicial() {
@@ -316,5 +320,18 @@ public class HomeController {
         depoimento.setId(id);
         depoimentoService.atualizarDepoimento(id, depoimento);
         return "redirect:/depoimentos";
+    }
+
+    @GetMapping("/matches/{perfilId}")
+    public String mostrarPerfisCompatíveis(@PathVariable("perfilId") String perfilId, Model model) {
+        Optional<Perfil> perfilAtual = perfilService.buscarPerfilPorId(perfilId);
+
+        if (perfilAtual.isPresent()) {
+            List<PerfilMatchDTO> matches = perfilService.buscarPerfisCompatíveis(perfilAtual.get());
+            model.addAttribute("matches", matches);
+            return "matches";
+        } else {
+            return "redirect:/matches";
+        }
     }
 }

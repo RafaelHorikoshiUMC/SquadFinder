@@ -1,7 +1,6 @@
 package com.pfc.thindesk.controller;
 
 import com.pfc.thindesk.entity.Depoimento;
-import com.pfc.thindesk.entity.Jogo;
 import com.pfc.thindesk.service.DepoimentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

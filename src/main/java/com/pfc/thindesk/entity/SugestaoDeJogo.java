@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Document(collection = "sugestoesDeJogos")
 @Data
 @NoArgsConstructor
@@ -17,5 +19,6 @@ public class SugestaoDeJogo {
     private String id;
     private String nomeDoJogoSugerido;
     private String descricaoOpcional;
-
+    private LocalDateTime dataCriacao;
+    private LocalDateTime dataAtualizacao;
 }
