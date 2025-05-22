@@ -2,9 +2,14 @@ package com.pfc.thindesk.service;
 
 import com.pfc.thindesk.PerfilMatchDTO;
 import com.pfc.thindesk.entity.Perfil;
+import com.pfc.thindesk.entity.Usuario;
 import com.pfc.thindesk.repository.PerfilRepository;
+import com.pfc.thindesk.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,79 +20,137 @@ import java.util.Optional;
 public class PerfilService {
     @Autowired
     public PerfilRepository perfilRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-    // Cria uma novo perfil
+    // Recupera o usuário atualmente autenticado
+    public String getUsuarioAutenticado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+            Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
+            if (usuarioOpt.isPresent()) {
+                return usuarioOpt.get().getId(); // retorna o ID Mongo do usuário
+            }
+        }
+        return null;
+    }
+
+
+    // Cria um novo perfil
     public Perfil criarPerfil(Perfil perfil) {
+        String usuarioId = getUsuarioAutenticado();
+        if (usuarioId == null) {
+            throw new IllegalStateException("Usuário não autenticado. Não é possível criar um perfil.");
+        }
+
+        // Seta o usuarioId no perfil antes de salvar
+        perfil.setUsuarioId(usuarioId);
         return perfilRepository.save(perfil);
     }
 
-    // Busca todos os perfis
-    public List<Perfil> listarTodosPerfis() {
-        return perfilRepository.findAll();
-    }
-
-    // Busca o perfil por ID
-    public Optional<Perfil> buscarPerfilPorId(String id) {
-        return perfilRepository.findById(id);
-    }
-
-    // Atualizar um perfil
-    public Perfil atualizarPerfil(String id, Perfil perfil) {
-        if (perfilRepository.existsById(id)) {
-            perfil.setId(id);
-            return perfilRepository.save(perfil);
-        } else {
-            return null;
+    // Lista apenas os perfis do usuário autenticado
+    public List<Perfil> listarPerfisDoUsuario() {
+        String usuarioAutenticado = getUsuarioAutenticado();
+        if (usuarioAutenticado == null) {
+            return new ArrayList<>(); // Nenhum perfil para usuário não autenticado
         }
+
+        return perfilRepository.findAll().stream()
+                .filter(perfil -> usuarioAutenticado.equals(perfil.getUsuarioId())) // Verifica null aqui
+                .toList();
     }
 
-    // Deleta um perfil
+    // Busca um perfil específico do usuário autenticado
+    public Optional<Perfil> buscarPerfilPorId(String id) {
+        String usuarioAutenticado = getUsuarioAutenticado();
+        if (usuarioAutenticado == null) {
+            return Optional.empty(); // Retorna vazio se o usuário não está autenticado
+        }
+
+        // Busca o perfil e filtra pelo usuarioId
+        return perfilRepository.findById(id)
+                .filter(perfil -> usuarioAutenticado.equals(perfil.getUsuarioId())); // Verifica null aqui
+    }
+
+    // Atualiza apenas se o perfil pertencer ao usuário autenticado
+    public Perfil atualizarPerfil(String id, Perfil perfilAtualizado) {
+        String usuarioAutenticado = getUsuarioAutenticado();
+        if (usuarioAutenticado == null) {
+            throw new SecurityException("Usuário não autenticado. Operação não permitida.");
+        }
+
+        Perfil perfilExistente = perfilRepository.findById(id)
+                .filter(perfil -> usuarioAutenticado.equals(perfil.getUsuarioId())) // Verifica null aqui
+                .orElseThrow(() -> new SecurityException("Acesso negado ao perfil especificado!"));
+
+        perfilAtualizado.setId(perfilExistente.getId()); // Garante que o ID original será mantido
+        perfilAtualizado.setUsuarioId(perfilExistente.getUsuarioId()); // Mantém o usuário correto
+        return perfilRepository.save(perfilAtualizado);
+    }
+
+    // Exclui apenas se o perfil pertencer ao usuário autenticado
     public void deletarPerfil(String id) {
-        perfilRepository.deleteById(id);
+        String usuarioAutenticado = getUsuarioAutenticado();
+        if (usuarioAutenticado == null) {
+            throw new SecurityException("Usuário não autenticado. Operação não permitida.");
+        }
+
+        Perfil perfilExistente = perfilRepository.findById(id)
+                .filter(perfil -> usuarioAutenticado.equals(perfil.getUsuarioId())) // Verifica null aqui
+                .orElseThrow(() -> new SecurityException("Acesso negado ao perfil especificado!"));
+
+        perfilRepository.delete(perfilExistente);
     }
 
+    // Algoritmo de compatibilidade
     public List<PerfilMatchDTO> buscarPerfisCompatíveis(Perfil perfilAtual) {
-        List<Perfil> todosPerfis = perfilRepository.findAll(); // Busca todos os perfis do sistema
-        List<PerfilMatchDTO> resultados = new ArrayList<>();    // Lista de resultados com score
+        // O mesmo de antes, sem mudanças
+        List<Perfil> todosPerfis = perfilRepository.findAll();
+        List<PerfilMatchDTO> resultados = new ArrayList<>();
 
         for (Perfil outroPerfil : todosPerfis) {
-            if (!outroPerfil.getId().equals(perfilAtual.getId())) { // Evita comparar com ele mesmo
+            if (!outroPerfil.getId().equals(perfilAtual.getId())) {
                 int atributosEmComum = 0;
                 int totalAtributos = 7;
 
-                // Compara os atributos principais (ignorando maiúsculas/minúsculas)
-                if (camposIguais(perfilAtual.getGeneroPreferidoPrincipal(), outroPerfil.getGeneroPreferidoPrincipal()))
-                    atributosEmComum++;
-                if (camposIguais(perfilAtual.getGeneroPreferidoSecundario(), outroPerfil.getGeneroPreferidoSecundario()))
-                    atributosEmComum++;
                 if (camposIguais(perfilAtual.getPlataforma(), outroPerfil.getPlataforma()))
-                    atributosEmComum++;
+                    atributosEmComum += 15;
                 if (camposIguais(perfilAtual.getComunicacao(), outroPerfil.getComunicacao()))
-                    atributosEmComum++;
+                    atributosEmComum += 10;
                 if (camposIguais(perfilAtual.getPeriodoOnline(), outroPerfil.getPeriodoOnline()))
-                    atributosEmComum++;
+                    atributosEmComum += 12;
                 if (camposIguais(perfilAtual.getEstiloDeJogo(), outroPerfil.getEstiloDeJogo()))
-                    atributosEmComum++;
+                    atributosEmComum += 8;
+                if (camposIguais(perfilAtual.getGeneroPreferidoPrincipal(), outroPerfil.getGeneroPreferidoPrincipal()))
+                    atributosEmComum += 6;
+                if (camposIguais(perfilAtual.getGeneroPreferidoSecundario(), outroPerfil.getGeneroPreferidoSecundario()))
+                    atributosEmComum += 3;
                 if (camposIguais(perfilAtual.getEstadoCivil(), outroPerfil.getEstadoCivil()))
-                    atributosEmComum++;
+                    atributosEmComum += 1;
 
-                // Calcula a porcentagem de compatibilidade
                 int porcentagem = (int) ((atributosEmComum / (double) totalAtributos) * 100);
-
-                // Adiciona o perfil com seu score na lista de resultados
                 resultados.add(new PerfilMatchDTO(outroPerfil, porcentagem));
             }
         }
 
-        // Retorna os perfis ordenados por maior porcentagem de compatibilidade
         return resultados.stream()
                 .sorted(Comparator.comparingInt(PerfilMatchDTO::scorePercentual).reversed())
                 .toList();
     }
 
-    // Método auxiliar para comparação segura entre strings, ignorando maiúsculas e nulos
+    // Método auxiliar para comparação segura de strings
     private boolean camposIguais(String a, String b) {
-        return a != null && b != null && a.equalsIgnoreCase(b);
+        return (a == null && b == null) || (a != null && a.equalsIgnoreCase(b));
+    }
+
+    public Optional<Perfil> buscarPerfilDoUsuarioLogado(String email) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
+        if (usuarioOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        String usuarioId = usuarioOpt.get().getId();  // pega o ID do usuário
+        return perfilRepository.findByUsuarioId(usuarioId);
     }
 
 }

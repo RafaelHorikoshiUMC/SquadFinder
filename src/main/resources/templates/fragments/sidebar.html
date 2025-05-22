@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
 </head>
@@ -25,22 +26,36 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/grupos}">
-                    <i class="bi bi-controller"></i> <span class="d-none d-md-inline">Grupos</span>
+                    <i class="bi bi-people"></i> <span class="d-none d-md-inline">Grupos</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/sugestoesDeJogos}">
-                    <i class="bi bi-controller"></i> <span class="d-none d-md-inline">Sugestão De Jogo</span>
+                    <i class="bi bi-lightbulb"></i> <span class="d-none d-md-inline">Sugestão De Jogo</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/depoimentos}">
-                    <i class="bi bi-controller"></i> <span class="d-none d-md-inline">Depoimentos</span>
+                    <i class="bi bi-chat-quote"></i> <span class="d-none d-md-inline">Depoimentos</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/matches}">
-                    <i class="bi bi-controller"></i> <span class="d-none d-md-inline">Matches</span>
+                    <i class="bi bi-heart"></i> <span class="d-none d-md-inline">Matches</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/perfis/compativeis}">
+                    <i class="bi bi-people-fill"></i> Ver Perfis Compatíveis
+                </a>
+            </li>
+
+
+
+            <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                <a class="nav-link" th:href="@{/admin}">
+                    <i class="bi bi-shield-lock"></i> <span class="d-none d-md-inline">Admin</span>
                 </a>
             </li>
             <li class="nav-item logout">

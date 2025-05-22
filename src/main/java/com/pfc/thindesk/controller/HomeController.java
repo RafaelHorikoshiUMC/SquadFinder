@@ -2,11 +2,13 @@ package com.pfc.thindesk.controller;
 
 import com.pfc.thindesk.PerfilMatchDTO;
 import com.pfc.thindesk.entity.*;
+import com.pfc.thindesk.repository.DecisaoMatchRepository;
 import com.pfc.thindesk.repository.UsuarioRepository;
 import com.pfc.thindesk.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +16,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -34,8 +38,8 @@ public class HomeController {
     private SugestaoDeJogoService sugestaoDeJogoService;
     @Autowired
     private DepoimentoService depoimentoService;
-
-
+    @Autowired
+    private DecisaoMatchService decisaoMatchService;
 
     @GetMapping("/inicial")
     public String inicial() {
@@ -54,12 +58,8 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public ModelAndView home() {
-        ModelAndView modelAndView = new ModelAndView("layout");
-        String fragment = "home :: content";
-        log.info("Carregando fragmento: {}", fragment); // Log para depuração
-        modelAndView.addObject("content", fragment);
-        return modelAndView;
+    public String home() {
+        return "home";
     }
 
     // Lista todos os jogos
@@ -120,10 +120,35 @@ public class HomeController {
 
     // Salva um novo usuario
     @PostMapping("/usuarios/salvar")
-    public String salvarUsuario(@ModelAttribute Usuario usuario) {
-        System.out.println("Salvando usuário: " + usuario); // Log simples
-        usuarioService.criarUsuario(usuario);
-        return "redirect:/login";
+    public String salvarUsuario(@ModelAttribute Usuario usuario, Model model) {
+        try {
+            usuarioService.criarUsuario(usuario);
+            return "redirect:/login";
+        } catch (RuntimeException e) {
+            model.addAttribute("usuario", usuario);
+            model.addAttribute("erro", e.getMessage());
+            return "novoUsuario";
+        }
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String listarUsuarios(Model model) {
+        List<Usuario> usuarios = usuarioService.listarTodosUsuarios();
+        model.addAttribute("usuarios", usuarios);
+        return "admin/usuarios"; // irá buscar src/main/resources/templates/admin/usuarios.html
+    }
+
+    @PostMapping("/admin/deletar/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deletarUsuario(@PathVariable("id") String id) {
+        usuarioService.deletarUsuario(id);
+        return "redirect:/admin";
+    }
+
+    @GetMapping("/acesso-negado")
+    public String acessoNegado() {
+        return "acesso-negado";
     }
 
     // Lista todos os grupos
@@ -178,11 +203,14 @@ public class HomeController {
     // Lista todos os perfis
     @GetMapping("/perfis")
     public String listarPerfis(Model model) {
-        List<Perfil> perfis = perfilService.listarTodosPerfis();
+        // Obtém apenas os perfis do usuário autenticado
+        List<Perfil> perfis = perfilService.listarPerfisDoUsuario();
         model.addAttribute("perfis", perfis);
+
         String fragment = "perfis :: content";
         log.info("Carregando fragmento: {}", fragment); // Log para depuração
         model.addAttribute("content", fragment);
+
         return "perfis";
     }
 
@@ -322,7 +350,7 @@ public class HomeController {
         return "redirect:/depoimentos";
     }
 
-    @GetMapping("/matches/{perfilId}")
+    @GetMapping("/perfis/{perfilId}/match")
     public String mostrarPerfisCompatíveis(@PathVariable("perfilId") String perfilId, Model model) {
         Optional<Perfil> perfilAtual = perfilService.buscarPerfilPorId(perfilId);
 
@@ -331,7 +359,73 @@ public class HomeController {
             model.addAttribute("matches", matches);
             return "matches";
         } else {
-            return "redirect:/matches";
+            return "redirect:/perfis";
         }
     }
+
+
+    @GetMapping("/perfis/compativeis")
+    public String mostrarPerfisCompatíveis(Model model) {
+        Optional<Perfil> meuPerfil = perfilService.listarPerfisDoUsuario().stream().findFirst();
+
+        if (meuPerfil.isEmpty()) {
+            return "redirect:/perfis";
+        }
+
+        List<PerfilMatchDTO> perfisCompatíveis = perfilService.buscarPerfisCompatíveis(meuPerfil.get());
+        model.addAttribute("perfilAtual", meuPerfil.get());
+        model.addAttribute("perfisCompativeis", perfisCompatíveis);
+        return "perfis/compativeis";
+    }
+
+    @PostMapping("/perfis/{perfilOrigemId}/match/{perfilAlvoId}/sim")
+    public String darMatchSim(@PathVariable("perfilOrigemId") String perfilOrigemId, @PathVariable("perfilAlvoId") String perfilAlvoId) {
+
+        decisaoMatchService.salvarDecisao(perfilOrigemId, perfilAlvoId, true);
+        return "redirect:/perfis/" + perfilOrigemId + "/decisoes";
+    }
+
+    @PostMapping("/perfis/{perfilOrigemId}/match/{perfilAlvoId}/nao")
+    public String darMatchNao(@PathVariable("perfilOrigemId") String perfilOrigemId, @PathVariable("perfilAlvoId") String perfilAlvoId) {
+
+        decisaoMatchService.salvarDecisao(perfilOrigemId, perfilAlvoId, false);
+        return "redirect:/perfis/" + perfilOrigemId + "/decisoes";
+    }
+
+    @GetMapping("/perfis/decisoes")
+    public String listarDecisoesDoPerfilLogado(Model model, Principal principal) {
+        Optional<Perfil> perfilAtual = perfilService.buscarPerfilDoUsuarioLogado(principal.getName());
+
+        if (perfilAtual.isEmpty()) {
+            return "redirect:/perfis";
+        }
+
+        String perfilId = perfilAtual.get().getId();
+
+        List<DecisaoMatch> listaSim = decisaoMatchService.listarDecisoesPorPerfilEStatus(perfilId, true);
+        List<DecisaoMatch> listaNao = decisaoMatchService.listarDecisoesPorPerfilEStatus(perfilId, false);
+
+        // Para cada decisao, buscar o perfilAlvo para pegar o apelido
+        Map<String, String> apelidosAlvo = new HashMap<>();
+        for (DecisaoMatch d : listaSim) {
+            apelidosAlvo.putIfAbsent(d.getPerfilAlvoId(), perfilService.buscarPerfilPorId(d.getPerfilAlvoId())
+                    .map(Perfil::getApelido).orElse("Desconhecido"));
+        }
+        for (DecisaoMatch d : listaNao) {
+            apelidosAlvo.putIfAbsent(d.getPerfilAlvoId(), perfilService.buscarPerfilPorId(d.getPerfilAlvoId())
+                    .map(Perfil::getApelido).orElse("Desconhecido"));
+        }
+
+        model.addAttribute("listaSim", listaSim);
+        model.addAttribute("listaNao", listaNao);
+        model.addAttribute("apelidosAlvo", apelidosAlvo);
+
+        return "decisoes";
+    }
+
+
+
+
+
+
 }

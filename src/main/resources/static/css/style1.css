@@ -47,8 +47,8 @@ body {
 }
 
 .navegacao {
-     position: relative;
-     z-index: 2;
+    position: relative;
+    z-index: 2;
 }
 
 .navegacao .btn {
@@ -82,7 +82,7 @@ body {
 }
 
 .hero {
-    background: url('static/images/carajogando.png') no-repeat center center/cover;
+    background: url('../images/carajogando.png') no-repeat center center/cover;
     height: 80vh;
     display: flex;
     align-items: flex-start;
@@ -111,7 +111,7 @@ body {
     padding: 0;
     text-align: left;
     align-self: flex-start;
-     padding-top: 40px;
+    padding-top: 40px;
 }
 
 .hero h1 {
@@ -288,7 +288,7 @@ body {
         max-width: 90%;
     }
     .lista-vantagens .vantagem-central {
-         max-width: 80%;
+        max-width: 80%;
     }
 
     .cabecalho .container,
@@ -300,16 +300,16 @@ body {
     .navegacao {
         margin-top: 15px;
     }
-     .rodape-logo {
+    .rodape-logo {
         flex-basis: 100%;
         align-items: center;
-         margin-bottom: 20px;
+        margin-bottom: 20px;
     }
     .rodape-logo p {
         text-align: center;
     }
     .redes-sociais {
-         text-align: center;
-         width: 100%;
+        text-align: center;
+        width: 100%;
     }
 }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Perfis Compatíveis</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+  <h2>Perfis Compatíveis com <span th:text="${perfilAtual.apelido}">Seu Perfil</span></h2>
+
+  <div class="row mt-4" th:if="${perfisCompativeis.isEmpty()}">
+    <div class="col">
+      <p>Nenhum perfil compatível encontrado no momento.</p>
+    </div>
+  </div>
+
+  <div class="row" th:each="match : ${perfisCompativeis}">
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title" th:text="${match.perfil.apelido}">Apelido</h5>
+          <p>Plataforma: <span th:text="${match.perfil.plataforma}">Plataforma</span></p>
+          <p>Estilo de Jogo: <span th:text="${match.perfil.estiloDeJogo}">Estilo</span></p>
+          <p>Compatibilidade: <strong th:text="${match.scorePercentual + '%'}">0%</strong></p>
+
+          <form th:action="@{/perfis/{origem}/match/{alvo}/sim(origem=${perfilAtual.id}, alvo=${match.perfil.id})}" method="post" style="display:inline-block;">
+            <button type="submit" class="btn btn-success w-100 mb-2">
+              <i class="bi bi-check-lg"></i> Sim
+            </button>
+          </form>
+
+          <form th:action="@{/perfis/{origem}/match/{alvo}/nao(origem=${perfilAtual.id}, alvo=${match.perfil.id})}" method="post" style="display:inline-block;">
+            <button type="submit" class="btn btn-danger w-100">
+              <i class="bi bi-x-lg"></i> Não
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a th:href="@{/}" class="btn btn-secondary mt-3">Voltar</a>
+</div>
+</body>
+</html>

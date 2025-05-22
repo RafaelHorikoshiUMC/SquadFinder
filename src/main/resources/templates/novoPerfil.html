@@ -67,11 +67,13 @@
     </div>
 
     <div class="col-md-6">
-      <label for="comunicacao" class="form-label">Plataforma de Comunicacao</label>
+      <label for="comunicacao" class="form-label">Plataforma de Comunicação</label>
       <select th:field="*{comunicacao}" class="form-select" id="comunicacao" required>
-        <option value="" disabled selected>Selecione a Plataforma</option>
+        <option value="" disabled selected>Selecione a Plataforma de Comunicação</option>
         <option value="Discord">Discord</option>
         <option value="TeamSpeak">TeamSpeak</option>
+        <option value="In Game">In Game</option>
+        <option value="Nativo">Nativo</option>
       </select>
     </div>
 
@@ -87,14 +89,20 @@
     </div>
 
     <div class="col-md-6">
-      <label for="periodoOnline" class="form-label">Periodo Online</label>
-      <input type="time" th:field="*{periodoOnline}" class="form-control" id="periodoOnline" required>
+      <label for="periodoOnline" class="form-label">Período Online</label>
+      <select th:field="*{periodoOnline}" class="form-select" id="periodoOnline" required>
+        <option value="" disabled selected>Selecione o Período Online</option>
+        <option value="Matutino">Matutino</option>
+        <option value="Vespertino">Vespertino</option>
+        <option value="Noturno">Noturno</option>
+        <option value="Madrugada">Madrugada</option>
+      </select>
     </div>
 
     <div class="col-md-6">
       <label for="estiloDeJogo" class="form-label">Estilo De Jogo</label>
       <select th:field="*{estiloDeJogo}" class="form-select" id="estiloDeJogo" required>
-        <option value="" disabled selected>Selecione o Estado Civil</option>
+        <option value="" disabled selected>Selecione o Estilo De Jogo</option>
         <option value="Competitivo">Competitivo</option>
         <option value="Casual">Casual</option>
       </select>

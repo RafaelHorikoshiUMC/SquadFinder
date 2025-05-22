@@ -36,17 +36,26 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/inicial", "/usuarios/novo", "/usuarios/salvar", "/recuperar", "/login", "/css/**", "/dist/**", "/plugins/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/inicial", "/usuarios/novo", "/usuarios/salvar",
+                                "/recuperar", "/login", "/css/**", "/dist/**",
+                                "/plugins/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/admin", "/admin/**", "/api/usuario/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/acesso-negado")
                 );
 
         http.authenticationProvider(authenticationProvider());
