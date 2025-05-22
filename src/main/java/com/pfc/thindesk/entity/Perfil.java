@@ -24,4 +24,6 @@ public class Perfil {
     private String estiloDeJogo;
     private String descricao;
     private String estadoCivil;
+    private String usuarioId;
+
 }

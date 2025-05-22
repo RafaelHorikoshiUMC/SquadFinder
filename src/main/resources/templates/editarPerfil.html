@@ -79,7 +79,13 @@
 
         <div class="col-md-6">
             <label for="periodoOnline" class="form-label">Periodo Online</label>
-            <input type="time" th:field="*{periodoOnline}" class="form-control" id="periodoOnline" required>
+            <select th:field="*{periodoOnline}" class="form-select" id="periodoOnline" required>
+                <option value="" disabled selected>Selecione o Periodo Online</option>
+                <option value="Matutino">Matutino</option>
+                <option value="Vespertino">Vespertino</option>
+                <option value="Noturno">Noturno</option>
+                <option value="Madrugada">Madrugada</option>
+            </select>
         </div>
 
         <div class="col-md-6">

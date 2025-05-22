@@ -4,28 +4,37 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Document(collection = "usuarios")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Usuario implements UserDetails {
+
     @Id
     private String id;
+
+    @Indexed(unique = true)
     private String nome;
+
     private String senha;
+
+    @Indexed(unique = true)
     private String email;
+
+    private String role = "ROLE_USER";
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // ou defina roles se quiser
+        return Collections.singletonList(new SimpleGrantedAuthority(role));
     }
 
     @Override
@@ -35,7 +44,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email; // Autenticação pelo e-mail
+        return email;
     }
 
     @Override
