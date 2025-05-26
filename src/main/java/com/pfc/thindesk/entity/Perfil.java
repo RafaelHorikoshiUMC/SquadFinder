@@ -25,5 +25,6 @@ public class Perfil {
     private String descricao;
     private String estadoCivil;
     private String usuarioId;
+    private String fotoUrl;
 
 }

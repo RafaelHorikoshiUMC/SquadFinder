@@ -1,7 +1,9 @@
 package com.pfc.thindesk.controller;
 
+import com.pfc.thindesk.MatchDTO;
 import com.pfc.thindesk.PerfilMatchDTO;
 import com.pfc.thindesk.entity.Perfil;
+import com.pfc.thindesk.service.DecisaoMatchService;
 import com.pfc.thindesk.service.PerfilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ public class PerfilController {
     @Autowired
     private PerfilService perfilService;
 
+    @Autowired
+    private DecisaoMatchService decisaoMatchService;
     // Cria um novo perfil
     @PostMapping
     public ResponseEntity<?> criarPerfil(@RequestBody Perfil perfil) {
@@ -82,11 +86,20 @@ public class PerfilController {
             return "redirect:/perfis";
         }
 
-        List<PerfilMatchDTO> perfisCompatíveis = perfilService.buscarPerfisCompatíveis(meuPerfil.get());
+        List<PerfilMatchDTO> perfisCompatíveis = perfilService.buscarPerfisNaoReagidos(meuPerfil.get());
         model.addAttribute("perfilAtual", meuPerfil.get());
         model.addAttribute("perfisCompativeis", perfisCompatíveis);
         return "perfis/compativeis"; // Caminho para o arquivo .html
     }
 
+    @GetMapping("/perfis/match")
+    public String verificarMatchEntrePerfis(
+            @RequestParam("perfilA") String perfilAId,
+            @RequestParam("perfilB") String perfilBId,
+            Model model) {
+        MatchDTO match = decisaoMatchService.verificarMatch(perfilAId, perfilBId);
+        model.addAttribute("match", match);
+        return "match";
+    }
 
 }
