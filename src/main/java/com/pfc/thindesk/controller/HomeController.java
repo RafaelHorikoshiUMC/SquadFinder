@@ -1,5 +1,6 @@
 package com.pfc.thindesk.controller;
 
+import com.pfc.thindesk.MatchDTO;
 import com.pfc.thindesk.PerfilMatchDTO;
 import com.pfc.thindesk.entity.*;
 import com.pfc.thindesk.repository.DecisaoMatchRepository;
@@ -16,10 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
@@ -218,6 +217,11 @@ public class HomeController {
     @GetMapping("/perfis/novo")
     public String novoCadastroPerfil(Model model) {
         model.addAttribute("perfil", new Perfil());
+        List<String> seeds = List.of(
+                "1", "2", "3", "4", "5", "6",
+                "7", "8", "9", "10", "11", "12"
+        );
+        model.addAttribute("seeds", seeds);
         return "novoPerfil";
     }
 
@@ -227,6 +231,11 @@ public class HomeController {
         Perfil perfil = perfilService.buscarPerfilPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado: " + id));
         model.addAttribute("perfil", perfil);
+        List<String> seeds = List.of(
+                "1", "2", "3", "4", "5", "6",
+                "7", "8", "9", "10", "11", "12"
+        );
+        model.addAttribute("seeds", seeds);
         return "editarPerfil";
     }
 
@@ -355,7 +364,7 @@ public class HomeController {
         Optional<Perfil> perfilAtual = perfilService.buscarPerfilPorId(perfilId);
 
         if (perfilAtual.isPresent()) {
-            List<PerfilMatchDTO> matches = perfilService.buscarPerfisCompatíveis(perfilAtual.get());
+            List<PerfilMatchDTO> matches = perfilService.buscarPerfisNaoReagidos(perfilAtual.get());
             model.addAttribute("matches", matches);
             return "matches";
         } else {
@@ -372,60 +381,57 @@ public class HomeController {
             return "redirect:/perfis";
         }
 
-        List<PerfilMatchDTO> perfisCompatíveis = perfilService.buscarPerfisCompatíveis(meuPerfil.get());
+        List<PerfilMatchDTO> perfisCompativeis = perfilService.buscarPerfisNaoReagidos(meuPerfil.get());
         model.addAttribute("perfilAtual", meuPerfil.get());
-        model.addAttribute("perfisCompativeis", perfisCompatíveis);
-        return "perfis/compativeis";
+        model.addAttribute("perfisCompativeis", perfisCompativeis);
+        return "compativeis";
     }
 
     @PostMapping("/perfis/{perfilOrigemId}/match/{perfilAlvoId}/sim")
     public String darMatchSim(@PathVariable("perfilOrigemId") String perfilOrigemId, @PathVariable("perfilAlvoId") String perfilAlvoId) {
 
         decisaoMatchService.salvarDecisao(perfilOrigemId, perfilAlvoId, true);
-        return "redirect:/perfis/" + perfilOrigemId + "/decisoes";
+        return "redirect:/perfis/" + perfilOrigemId + "/compativeis";
     }
 
     @PostMapping("/perfis/{perfilOrigemId}/match/{perfilAlvoId}/nao")
     public String darMatchNao(@PathVariable("perfilOrigemId") String perfilOrigemId, @PathVariable("perfilAlvoId") String perfilAlvoId) {
 
         decisaoMatchService.salvarDecisao(perfilOrigemId, perfilAlvoId, false);
-        return "redirect:/perfis/" + perfilOrigemId + "/decisoes";
+        return "redirect:/perfis/" + perfilOrigemId + "/compativeis";
     }
 
-    @GetMapping("/perfis/decisoes")
-    public String listarDecisoesDoPerfilLogado(Model model, Principal principal) {
-        Optional<Perfil> perfilAtual = perfilService.buscarPerfilDoUsuarioLogado(principal.getName());
+    @GetMapping("/perfis/matches-reciprocos")
+    public String listarMatchesRecebidos(Model model, Principal principal) {
+        Optional<Perfil> meuPerfil = perfilService.buscarPerfilDoUsuarioLogado(principal.getName());
 
-        if (perfilAtual.isEmpty()) {
+        if (meuPerfil.isEmpty()) {
             return "redirect:/perfis";
         }
 
-        String perfilId = perfilAtual.get().getId();
+        List<DecisaoMatch> matchesComigo = decisaoMatchService.listarMatchesComigo(meuPerfil.get().getId());
 
-        List<DecisaoMatch> listaSim = decisaoMatchService.listarDecisoesPorPerfilEStatus(perfilId, true);
-        List<DecisaoMatch> listaNao = decisaoMatchService.listarDecisoesPorPerfilEStatus(perfilId, false);
+        Set<String> ids = matchesComigo.stream()
+                .map(DecisaoMatch::getPerfilOrigemId)
+                .collect(Collectors.toSet());
 
-        // Para cada decisao, buscar o perfilAlvo para pegar o apelido
-        Map<String, String> apelidosAlvo = new HashMap<>();
-        for (DecisaoMatch d : listaSim) {
-            apelidosAlvo.putIfAbsent(d.getPerfilAlvoId(), perfilService.buscarPerfilPorId(d.getPerfilAlvoId())
-                    .map(Perfil::getApelido).orElse("Desconhecido"));
-        }
-        for (DecisaoMatch d : listaNao) {
-            apelidosAlvo.putIfAbsent(d.getPerfilAlvoId(), perfilService.buscarPerfilPorId(d.getPerfilAlvoId())
-                    .map(Perfil::getApelido).orElse("Desconhecido"));
-        }
-
-        model.addAttribute("listaSim", listaSim);
-        model.addAttribute("listaNao", listaNao);
-        model.addAttribute("apelidosAlvo", apelidosAlvo);
-
-        return "decisoes";
+        List<Perfil> perfis = perfilService.buscarPerfisPorIds(ids);
+        model.addAttribute("meuPerfil", meuPerfil.get());
+        model.addAttribute("perfisQueDeramMatch", perfis);
+        return "matches-reciprocos";
     }
 
+    @GetMapping("/perfis/curtidas-recebidas")
+    public String verCurtidasRecebidas(Model model, Principal principal) {
+        Optional<Perfil> meuPerfil = perfilService.buscarPerfilDoUsuarioLogado(principal.getName());
+        if (meuPerfil.isEmpty()) return "redirect:/perfis";
 
+        List<Perfil> perfisQueMeCurtiram = decisaoMatchService.listarQuemMeCurtiuSemResposta(meuPerfil.get().getId());
 
-
+        model.addAttribute("perfis", perfisQueMeCurtiram);
+        model.addAttribute("perfilAtual", meuPerfil.get());
+        return "curtidas-recebidas";
+    }
 
 
 }

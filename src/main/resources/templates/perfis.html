@@ -18,56 +18,45 @@
   <span>&#9776;</span>
 </div>
 
-<div class="container mt-4" th:fragment="content">
-  <h1 class="mt-4">Meu Perfil</h1>
+<div class="container min-vh-100 d-flex flex-column justify-content-center align-items-center" th:fragment="content">
+  <h1 class="mb-4 text-center">Meu Perfil</h1>
 
-  <a href="/perfis/novo" class="btn btn-outline-success"
-     th:if="${#lists.isEmpty(perfis)}">Cadastrar Novo Perfil</a>
+  <a href="/perfis/novo" class="btn btn-success mb-4" th:if="${#lists.isEmpty(perfis)}">
+    <i class="bi bi-plus-circle"></i> Cadastrar Novo Perfil
+  </a>
 
-
-  <table class="table table-bordered table-striped mt-3">
-    <thead>
-    <tr>
-      <th>Id</th>
-      <th>Apelido</th>
-      <th>Nascimento</th>
-      <th>Genero Preferido Principal</th>
-      <th>Genero Preferido Secundario</th>
-      <th>Comunicação</th>
-      <th>Plataforma</th>
-      <th>Periodo Online</th>
-      <th>Estilo De Jogo</th>
-      <th>Descrição</th>
-      <th>Estado Civil</th>
-
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="perfil : ${perfis}">
-      <td th:text="${perfil.id}"></td>
-      <td th:text="${perfil.apelido}"></td>
-      <td th:text="${perfil.nascimento}"></td>
-      <td th:text="${perfil.generoPreferidoPrincipal}"></td>
-      <td th:text="${perfil.generoPreferidoSecundario}"></td>
-      <td th:text="${perfil.comunicacao}"></td>
-      <td th:text="${perfil.plataforma}"></td>
-      <td th:text="${perfil.periodoOnline}"></td>
-      <td th:text="${perfil.estiloDeJogo}"></td>
-      <td th:text="${perfil.descricao}"></td>
-      <td th:text="${perfil.estadoCivil}"></td>
-      <td>
-        <a th:href="@{'/perfis/editar/' + ${perfil.id}}" class="btn btn-warning btn-sm">Editar</a>
-
-        <form th:action="@{/perfis/deletar(id=${perfil.id})}" method="post" style="display:inline;">
-          <button type="submit" class="btn btn-danger btn-sm"
-                  onclick="return confirm('Tem certeza que deseja excluir este perfil?');">Excluir</button>
-        </form>
-
-      </td>
-    </tr>
-    </tbody>
-  </table>
+  <div class="row justify-content-center w-100" th:each="perfil : ${perfis}">
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card shadow rounded-3 h-100">
+        <div class="card-body text-center">
+          <img th:src="${perfil.fotoUrl}" class="card-img-top mb-3" alt="Avatar">
+          <p class="card-text"><strong>Apelido:</strong> <span th:text="${perfil.apelido}"></span></p>
+          <p class="card-text"><strong>Nascimento:</strong> <span th:text="${perfil.nascimento}"></span></p>
+          <p class="card-text"><strong>Gênero Principal:</strong> <span th:text="${perfil.generoPreferidoPrincipal}"></span></p>
+          <p class="card-text"><strong>Gênero Secundário:</strong> <span th:text="${perfil.generoPreferidoSecundario}"></span></p>
+          <p class="card-text"><strong>Comunicação:</strong> <span th:text="${perfil.comunicacao}"></span></p>
+          <p class="card-text"><strong>Plataforma:</strong> <span th:text="${perfil.plataforma}"></span></p>
+          <p class="card-text"><strong>Período Online:</strong> <span th:text="${perfil.periodoOnline}"></span></p>
+          <p class="card-text"><strong>Estilo de Jogo:</strong> <span th:text="${perfil.estiloDeJogo}"></span></p>
+          <p class="card-text"><strong>Descrição:</strong> <span th:text="${perfil.descricao}"></span></p>
+          <p class="card-text"><strong>Estado Civil:</strong> <span th:text="${perfil.estadoCivil}"></span></p>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+          <a th:href="@{'/perfis/editar/' + ${perfil.id}}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-pencil-square"></i> Editar
+          </a>
+          <form th:action="@{/perfis/deletar(id=${perfil.id})}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Tem certeza que deseja excluir este perfil?');">
+              <i class="bi bi-trash"></i> Excluir
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
 
 <script th:src="@{/js/script.js}"></script>
 </body>
