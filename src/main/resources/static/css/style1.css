@@ -21,34 +21,37 @@ body {
     background-color: #ffffff;
     padding: 10px 0;
     border-bottom: 1px solid #dddddd;
-    position: relative;
+    position: relative; /* Mantém relative para os filhos */
 }
 
 .cabecalho .container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between; /* Ajustado para espaçar logo e navegação */
     align-items: center;
     position: relative;
     min-height: 50px;
 }
 
 .logo {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    /* Removido position: absolute, left, top e transform para desktop */
+    /* Em desktop, a logo agora flutua à esquerda ou se ajusta pelo justify-content */
+    display: flex; /* Para centralizar a imagem dentro do seu container */
+    align-items: center;
+    justify-content: flex-start; /* Alinha a logo à esquerda por padrão */
+    z-index: 2; /* Garante que a logo fique acima, se houver sobreposição */
 }
 
 .logo img {
     height: 50px;
     width: auto;
-    margin-right: 0;
+    /* margin-right: 0; - pode remover, não é mais tão relevante com flexbox */
     display: block;
 }
 
 .navegacao {
     position: relative;
     z-index: 2;
+    /* Em desktop, já está justificado à direita pelo justify-content: space-between do container */
 }
 
 .navegacao .btn {
@@ -63,7 +66,7 @@ body {
 
 .btn-login {
     background-color: #8a2be2;
-    color: #333333;
+    color: #333333; /* Cor original */
     border: 1px solid #8a2be2;
 }
 .btn-login:hover {
@@ -81,6 +84,7 @@ body {
     color: #000000;
 }
 
+/* Hero Section e Vantagens (mantidos como estão) */
 .hero {
     background: url('../images/carajogando.png') no-repeat center center/cover;
     height: 80vh;
@@ -272,7 +276,35 @@ body {
     color: #8a2be2;
 }
 
+/* Media Query para Mobile */
 @media (max-width: 768px) {
+    .cabecalho .container {
+        flex-direction: column; /* Empilha os itens verticalmente */
+        justify-content: center; /* Centraliza verticalmente */
+        align-items: center; /* Centraliza horizontalmente */
+        padding-bottom: 10px; /* Adiciona um pequeno padding inferior */
+    }
+
+    .logo {
+        position: static; /* Remove o posicionamento absoluto em mobile */
+        transform: none; /* Remove a transformação em mobile */
+        margin-bottom: 10px; /* Adiciona espaço abaixo da logo */
+        justify-content: center; /* Centraliza a logo */
+    }
+
+    .navegacao {
+        /* Remove o posicionamento relativo se não for necessário mais */
+        /* position: static; */
+        margin-top: 10px; /* Adiciona espaço acima da navegação */
+        display: flex; /* Para garantir que os botões fiquem lado a lado */
+        flex-wrap: wrap; /* Permite que os botões quebrem linha se necessário */
+        justify-content: center; /* Centraliza os botões */
+    }
+
+    .navegacao .btn {
+        margin: 5px; /* Ajusta a margem entre os botões */
+    }
+
     .hero h1 {
         font-size: 2em;
         max-width: 100%;
@@ -291,7 +323,6 @@ body {
         max-width: 80%;
     }
 
-    .cabecalho .container,
     .rodape .container {
         flex-direction: column;
         align-items: center;
