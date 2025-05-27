@@ -3,46 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <title>Editar Grupo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
-<div class="container mt-5">
-  <h2>Editar Grupo</h2>
-  <form th:action="@{'/grupos/atualizar/' + ${grupo.id}}" th:object="${grupo}" method="post">
+<aside>
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+</aside>
 
-    <div class="col-md-6">
+<div class="container-fluid mt-4" th:fragment="content">
+  <div class="d-flex align-items-center mb-4 header-mobile-flex">
+    <div class="toggle-btn btn btn-dark d-md-none me-3 z-index-1000"> <span>&#9776;</span>
+    </div>
+    <h1 class="container mt-4" th:fragment="content">Editar Grupo</h1> </div>
+
+  <form th:action="@{'/grupos/atualizar/' + ${grupo.id}}" th:object="${grupo}" method="post" class="row g-3 px-3">
+    <div class="col-12 col-md-12 mb-3">
+      <label for="id" class="form-label">ID</label>
+      <input type="text" th:value="${grupo.id}" id="id" class="form-control" disabled/>
+      <input type="hidden" name="id" th:value="${grupo.id}">
+    </div>
+
+    <div class="col-12 col-md-12 mb-3">
       <label for="jogo" class="form-label">Nome do Jogo</label>
       <input type="text" th:field="*{jogo}" class="form-control" id="jogo" required>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-12 col-md-12 mb-3">
       <label for="criador" class="form-label">Criador do Grupo</label>
       <input type="text" th:field="*{criador}" class="form-control" id="criador" required>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-12 col-md-12 mb-3">
       <label for="participantes" class="form-label">Participantes</label>
       <input type="text" th:field="*{participantes}" class="form-control" id="participantes" required>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-12 col-md-6">
       <label for="objetivo" class="form-label">Objetivo</label>
       <select th:field="*{objetivo}" class="form-select" id="objetivo" required>
         <option value="" disabled selected>Selecione o Objetivo</option>
         <option value="Competitivo">Competitivo</option>
         <option value="Casual">Casual</option>
       </select>
-    </div>horario
+    </div>
 
-    <div class="col-md-6">
+    <div class="col-12 col-md-6">
       <label for="horario" class="form-label">Horario</label>
       <input type="time" th:field="*{horario}" class="form-control" id="horario" required>
     </div>
 
-    <button type="submit" class="btn btn-success">Salvar Alterações</button>
-    <a th:href="@{/grupos}" class="btn btn-secondary">Cancelar</a>
+    <div class="col-12">
+      <button type="submit" class="btn btn-success">Salvar Alterações</button>
+      <a th:href="@{/grupos}" class="btn btn-secondary ms-2">Cancelar</a>
+    </div>
   </form>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/script.js}"></script>
 </body>
 </html>

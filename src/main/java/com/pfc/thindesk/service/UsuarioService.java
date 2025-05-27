@@ -1,13 +1,18 @@
 package com.pfc.thindesk.service;
 
+import com.pfc.thindesk.email.EmailService;
+import com.pfc.thindesk.email.EmailTemplate;
+import com.pfc.thindesk.email.dtos.RecoverDto;
 import com.pfc.thindesk.entity.Usuario;
 import com.pfc.thindesk.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class UsuarioService {
@@ -17,6 +22,66 @@ public class UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
+
+    private Map<String, TokenInfo> tokenStorage = new ConcurrentHashMap<>(); // Armazena tokens temporários para recuperação de senha
+
+    // Estrutura auxiliar para guardar token com ID do usuário e data de expiração
+    private static class TokenInfo {
+        String userId;
+        LocalDateTime expiry;
+
+        TokenInfo(String userId, LocalDateTime expiry) {
+            this.userId = userId;
+            this.expiry = expiry;
+        }
+    }
+
+    // Envia e-mail com link de recuperação de senha
+    public void sendEmailRecoverPassword(RecoverDto dto) {
+        try {
+            Usuario usuario = usuarioRepository.findByEmail(dto.email())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+            String token = UUID.randomUUID().toString(); // Gera token único
+            tokenStorage.put(token, new TokenInfo(usuario.getId(), LocalDateTime.now().plusHours(1))); // Salva token com validade
+
+            Context context = new Context();
+            String urlReset = "http://localhost:8080/atualizar-senha/" + token; // Link de redefinição
+            context.setVariable("nomeUsuario", usuario.getNome());
+            context.setVariable("urlReset", urlReset);
+
+            // Envia o e-mail usando o template de recuperação
+            emailService.enviarEmail(
+                    "Recuperação de senha",
+                    usuario.getEmail(),
+                    EmailTemplate.RECUPERAR_SENHA,
+                    context,
+                    Optional.empty()
+            );
+        } catch (Exception e) {
+            e.printStackTrace(); // Exibe erro no console (pode ser melhor tratar com log)
+        }
+    }
+
+    // Atualiza a senha do usuário com base no token
+    public void updatePassword(String token, String novaSenha) {
+        TokenInfo info = tokenStorage.get(token);
+
+        if (info == null || info.expiry.isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token inválido ou expirado");
+        }
+
+        Usuario usuario = usuarioRepository.findById(info.userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        usuario.setSenha(passwordEncoder.encode(novaSenha)); // Codifica nova senha
+        usuarioRepository.save(usuario); // Salva usuário com senha atualizada
+
+        tokenStorage.remove(token); // Remove token após uso
+    }
 
     // Cria um novo Usuario
     public Usuario criarUsuario(Usuario usuario) {

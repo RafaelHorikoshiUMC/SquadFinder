@@ -31,11 +31,6 @@ public class DecisaoMatchService {
         decisaoMatchRepository.save(decisao);
     }
 
-    public List<DecisaoMatch> listarDecisoesPorPerfilEStatus(String perfilOrigemId, boolean deuMatch) {
-        return decisaoMatchRepository.findByPerfilOrigemIdAndDeuMatch(perfilOrigemId, deuMatch);
-    }
-
-
     public MatchDTO verificarMatch(String perfilAId, String perfilBId) {
         MatchDTO matchDTO = new MatchDTO();
         matchDTO.setPerfilAId(perfilAId);

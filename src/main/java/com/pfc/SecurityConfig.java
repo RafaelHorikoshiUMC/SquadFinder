@@ -37,6 +37,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/inicial", "/usuarios/novo", "/usuarios/salvar",
+                                "/recuperar", "/recuperar-enviado",
+                                "/recuperar-senha/**", "/atualizar-senha/**",
+                                "/senha-atualizada",
                                 "/recuperar", "/login", "/css/**", "/dist/**",
                                 "/plugins/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin", "/admin/**", "/api/usuario/admin").hasRole("ADMIN")
@@ -44,7 +47,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/perfis/compativeis", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
