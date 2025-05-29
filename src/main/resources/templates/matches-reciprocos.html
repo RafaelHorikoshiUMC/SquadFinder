@@ -116,12 +116,12 @@
                 <div class="match-card mx-auto">
                     <img th:if="${perfil.fotoUrl != null}" th:src="${perfil.fotoUrl}" class="d-block mx-auto" alt="Foto do Perfil" />
                     <p><strong>Apelido:</strong> <span th:text="${perfil.apelido}"></span></p>
+                    <p><strong>Jogo Preferido:</strong> <span th:text="${perfil.jogoPreferido.nome}"></span></p>
                     <p><strong>Plataforma:</strong> <span th:text="${perfil.plataforma}"></span></p>
                     <p><strong>Comunicação:</strong> <span th:text="${perfil.comunicacao}"></span></p>
                     <p><strong>Período Online:</strong> <span th:text="${perfil.periodoOnline}"></span></p>
                     <p><strong>Estilo de Jogo:</strong> <span th:text="${perfil.estiloDeJogo}"></span></p>
                     <p><strong>Gênero Preferido Principal:</strong> <span th:text="${perfil.generoPreferidoPrincipal}"></span></p>
-                    <p><strong>Compatibilidade:</strong> <span th:text="${scorePercentual + '%'}"></span></p>
                     <a th:href="@{'/chat/' + ${perfil.id}}" class="btn btn-primary mt-3">
                         <i class="bi bi-chat-dots"></i> Iniciar Chat
                     </a>

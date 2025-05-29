@@ -15,5 +15,8 @@ public interface PerfilRepository extends MongoRepository<Perfil, String> {
     // Busca por perfil associado a um usuário
     Optional<Perfil> findByUsuarioId(String usuarioId);
 
+
+
+
 }
 

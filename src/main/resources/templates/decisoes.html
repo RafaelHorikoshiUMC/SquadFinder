@@ -4,6 +4,10 @@
         ID: <span th:text="${decisao.id}"></span>,
         Perfil Alvo: <span th:text="${apelidosAlvo[decisao.perfilAlvoId]}"></span>,
         Match: <span th:text="${decisao.deuMatch}"></span>
+        <br/>
+        <a th:href="@{/perfis/match(perfilA=${decisao.perfilOrigemId}, perfilB=${decisao.perfilAlvoId})}">
+            Verificar Match
+        </a>
     </li>
 </ul>
 
@@ -13,5 +17,9 @@
         ID: <span th:text="${decisao.id}"></span>,
         Perfil Alvo: <span th:text="${apelidosAlvo[decisao.perfilAlvoId]}"></span>,
         Match: <span th:text="${decisao.deuMatch}"></span>
+        <br/>
+        <a th:href="@{/perfis/match(perfilA=${decisao.perfilOrigemId}, perfilB=${decisao.perfilAlvoId})}">
+            Verificar Match
+        </a>
     </li>
 </ul>

@@ -42,7 +42,7 @@ public class SecurityConfig {
                                 "/senha-atualizada",
                                 "/recuperar", "/login", "/css/**", "/dist/**",
                                 "/plugins/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/admin", "/admin/**", "/api/usuario/admin").hasRole("ADMIN")
+                        .requestMatchers("/admin", "/admin/**", "/api/usuario/admin", "/jogos/novo","/jogos/editar","/jogos/deletar").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

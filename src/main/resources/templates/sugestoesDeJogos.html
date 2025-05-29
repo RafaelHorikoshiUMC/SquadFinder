@@ -96,15 +96,33 @@
   <h1 class="mt-4">Lista de Sugestão de Jogos</h1> </div>
 
   <a href="/sugestoesDeJogos/novo" class="btn btn-outline-success mb-3">Criar Sugestão</a> <table class="table table-bordered table-striped mt-3 table-mobile-cards"> <thead class="table-dark"> <tr>
-    <th>Id</th>
-    <th>Nome Sugerido</th> <th>Descrição</th> <th>Criação</th> <th>Atualização</th> <th>Ações</th> </tr>
+    <th>Nome do Jogo Sugerido</th>
+    <th>Descrição</th>
+    <th>Autor</th>
+    <th>Criação</th>
+    <th>Atualização</th>
+    <th>Ações</th> </tr>
   </thead>
     <tbody>
     <tr th:each="sugestaoDeJogo : ${sugestoesDeJogos}">
-      <td data-label="Id:" th:text="${sugestaoDeJogo.id}"></td> <td data-label="Nome Sugerido:" th:text="${sugestaoDeJogo.nomeDoJogoSugerido}"></td> <td data-label="Descrição:" th:text="${sugestaoDeJogo.descricaoOpcional}"></td> <td data-label="Criação:" th:text="${#temporals.format(sugestaoDeJogo.dataCriacao, 'dd/MM/yyyy HH:mm')}"></td> <td data-label="Atualização:" th:text="${#temporals.format(sugestaoDeJogo.dataAtualizacao, 'dd/MM/yyyy HH:mm')}"></td> <td data-label="Ações"> <div class="actions-container"> <a th:href="@{'/sugestoesDeJogos/editar/' + ${sugestaoDeJogo.id}}" class="btn btn-warning btn-sm mb-2 text-nowrap">Editar</a> <form th:action="@{/sugestoesDeJogos/deletar(id=${sugestaoDeJogo.id})}" method="post" style="display:inline;" class="form-control-button"> <button type="submit" class="btn btn-danger btn-sm text-nowrap"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    onclick="return confirm('Tem certeza que deseja excluir esta sugestão de jogo?');">Excluir</button>
-    </form>
-    </div>
+      <td data-label="Nome do Jogo Sugerido:" th:text="${sugestaoDeJogo.nomeDoJogoSugerido}"></td>
+      <td data-label="Descrição:" th:text="${sugestaoDeJogo.descricaoOpcional}"></td>
+      <td data-label="Autor:" th:text="${sugestaoDeJogo.criador}"></td>
+      <td data-label="Criação:" th:text="${#temporals.format(sugestaoDeJogo.dataCriacao, 'dd/MM/yyyy HH:mm')}"></td>
+      <td data-label="Atualização:" th:text="${#temporals.format(sugestaoDeJogo.dataAtualizacao, 'dd/MM/yyyy HH:mm')}"></td>
+      <td data-label="Ações">
+
+        <div class="actions-container"> <a th:href="@{'/sugestoesDeJogos/editar/' + ${sugestaoDeJogo.id}}"
+            class="btn btn-warning btn-sm mb-2 text-nowrap"
+            th:if="${sugestaoDeJogo.perfilCriador.id == perfilLogado.id}"
+            >Editar</a>
+
+            <form th:action="@{/sugestoesDeJogos/deletar(id=${sugestaoDeJogo.id})}" method="post" style="display:inline;" class="form-control-button">
+              <button type="submit" class="btn btn-danger btn-sm text-nowrap"
+                      th:if="${sugestaoDeJogo.perfilCriador.id == perfilLogado.id}"
+                      onclick="return confirm('Tem certeza que deseja excluir este depoimento?');">Excluir</button>
+            </form>
+          </div>
     </td>
     </tr>
     </tbody>

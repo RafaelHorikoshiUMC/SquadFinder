@@ -100,11 +100,11 @@
     <h1 class="mt-4">Jogos</h1>
 
     <a href="/jogos/novo" class="btn btn-outline-success mb-3" sec:authorize="hasRole('ADMIN')">Cadastrar Jogo</a>
+    <div>
 
-    <table class="table table-bordered table-striped table-mobile-cards">
+        <table class="table table-bordered table-striped table-mobile-cards">
         <thead class="table-dark">
         <tr>
-            <th>Id</th>
             <th>Nome</th>
             <th>Categoria</th>
             <th>Plataforma</th>
@@ -115,7 +115,6 @@
         </thead>
         <tbody>
         <tr th:each="jogo : ${jogos}">
-            <td data-label="Id:" th:text="${jogo.id}"></td>
             <td data-label="Nome:" th:text="${jogo.nome}"></td>
             <td data-label="Categoria:" th:text="${jogo.categoria}"></td>
             <td data-label="Plataforma:" th:text="${jogo.plataforma}"></td>
@@ -140,8 +139,8 @@
         </tr>
         </tbody>
     </table>
+    </div>
 </div>
-
 <script th:src="@{/js/script.js}"></script>
 </body>
 </html>

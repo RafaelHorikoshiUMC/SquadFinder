@@ -1,8 +1,10 @@
 package com.pfc.thindesk.controller;
 
+import com.pfc.thindesk.entity.Grupo;
 import com.pfc.thindesk.entity.Mensagem;
 import com.pfc.thindesk.entity.Perfil;
 import com.pfc.thindesk.entity.Usuario;
+import com.pfc.thindesk.repository.GrupoRepository;
 import com.pfc.thindesk.repository.MensagemRepository;
 import com.pfc.thindesk.repository.PerfilRepository;
 import com.pfc.thindesk.repository.UsuarioRepository;
@@ -27,6 +29,9 @@ public class ChatController {
 
     @Autowired
     private PerfilRepository perfilRepository;
+
+    @Autowired
+    private GrupoRepository grupoRepository;
 
     @GetMapping("/{destinatarioId}")
     public String abrirChat(@PathVariable String destinatarioId, Model model, Principal principal) {
@@ -71,5 +76,62 @@ public class ChatController {
 
         return "redirect:/chat/" + novaMensagem.getDestinatarioId();
     }
+
+    @GetMapping("/grupo/{grupoId}")
+    public String abrirChatGrupo(@PathVariable String grupoId, Model model, Principal principal) {
+        String email = principal.getName();
+        Usuario usuarioLogado = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        Perfil perfilLogado = perfilRepository.findByUsuarioId(usuarioLogado.getId())
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+
+        Grupo grupo = grupoRepository.findById(grupoId)
+                .orElseThrow(() -> new RuntimeException("Grupo não encontrado"));
+
+        if (!grupo.getParticipantes().contains(perfilLogado) && !grupo.getPerfilCriador().getId().equals(perfilLogado.getId())) {
+            throw new RuntimeException("Você não faz parte deste grupo.");
+        }
+
+        List<Mensagem> mensagens = mensagemRepository.findByGrupoIdOrderByDataHora(grupoId);
+
+        model.addAttribute("grupo", grupo);
+        model.addAttribute("perfilLogado", perfilLogado);
+        model.addAttribute("mensagens", mensagens);
+        model.addAttribute("novaMensagem", new Mensagem());
+
+        return "chat-grupo";
+    }
+
+    @PostMapping("/grupo/enviar")
+    public String enviarMensagemGrupo(@RequestParam String grupoId,
+                                      @RequestParam String conteudo,
+                                      Principal principal) {
+        String email = principal.getName();
+        Usuario usuarioLogado = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        Perfil perfilLogado = perfilRepository.findByUsuarioId(usuarioLogado.getId())
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+
+        Grupo grupo = grupoRepository.findById(grupoId)
+                .orElseThrow(() -> new RuntimeException("Grupo não encontrado"));
+
+        if (!grupo.getParticipantes().contains(perfilLogado) && !grupo.getPerfilCriador().getId().equals(perfilLogado.getId())) {
+            throw new RuntimeException("Você não faz parte deste grupo.");
+        }
+
+        Mensagem mensagem = new Mensagem();
+        mensagem.setGrupoId(grupoId);
+        mensagem.setRemetenteId(perfilLogado.getId());
+        mensagem.setConteudo(conteudo);
+        mensagem.setDataHora(LocalDateTime.now());
+
+        mensagemRepository.save(mensagem);
+
+        return "redirect:/chat/grupo/" + grupoId;
+    }
+
+
 }
 

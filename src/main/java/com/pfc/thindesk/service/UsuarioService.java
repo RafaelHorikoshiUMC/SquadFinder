@@ -6,6 +6,7 @@ import com.pfc.thindesk.email.dtos.RecoverDto;
 import com.pfc.thindesk.entity.Usuario;
 import com.pfc.thindesk.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -107,10 +108,14 @@ public class UsuarioService {
         return usuarioRepository.findById(id);
     }
 
-    // Busca o Usuario por Email
-    public Usuario buscarUsuarioPorEmail(String email) {
+    public Usuario buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o e-mail: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
+    }
+
+    public Usuario buscarPorUsername(String nome) {
+        return usuarioRepository.findByNome(nome)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + nome));
     }
 
     // Atualizar um Usuario

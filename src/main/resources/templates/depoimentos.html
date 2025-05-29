@@ -93,17 +93,31 @@
     <h1 class="container mt-4" th:fragment="content">Depoimentos</h1> </div>
 
     <a href="/depoimentos/novo" class="btn btn-outline-success mb-3">Criar Depoimento</a> <table class="table table-bordered table-striped mt-3 table-mobile-cards"> <thead class="table-dark"> <tr>
-        <th>Id</th>
         <th>Texto</th>
-        <th>Criação</th> <th>Atualização</th> <th>Ações</th>
+        <th>Autor</th>
+        <th>Criação</th>
+        <th>Atualização</th>
+        <th>Ações</th>
     </tr>
     </thead>
         <tbody>
         <tr th:each="depoimento : ${depoimentos}">
-            <td data-label="Id:" th:text="${depoimento.id}"></td> <td data-label="Texto:" th:text="${depoimento.texto}"></td> <td data-label="Criação:" th:text="${#temporals.format(depoimento.dataCriacao, 'dd/MM/yyyy HH:mm')}"></td> <td data-label="Atualização:" th:text="${#temporals.format(depoimento.dataAtualizacao, 'dd/MM/yyyy HH:mm')}"></td> <td data-label="Ações">
-            <div class="actions-container"> <a th:href="@{'/depoimentos/editar/' + ${depoimento.id}}" class="btn btn-warning btn-sm mb-2 text-nowrap">Editar</a> <form th:action="@{/depoimentos/deletar(id=${depoimento.id})}" method="post" style="display:inline;" class="form-control-button"> <button type="submit" class="btn btn-danger btn-sm text-nowrap"
-                                                                                                                                                                                                                                                                                                           onclick="return confirm('Tem certeza que deseja excluir este depoimento?');">Excluir</button>
-            </form>
+            <td data-label="Texto:" th:text="${depoimento.texto}"></td>
+            <td data-label="Autor:" th:text="${depoimento.criador}"></td>
+            <td data-label="Criação:" th:text="${#temporals.format(depoimento.dataCriacao, 'dd/MM/yyyy HH:mm')}"></td>
+            <td data-label="Atualização:" th:text="${#temporals.format(depoimento.dataAtualizacao, 'dd/MM/yyyy HH:mm')}"></td>
+            <td data-label="Ações">
+
+            <div class="actions-container"> <a th:href="@{'/depoimentos/editar/' + ${depoimento.id}}"
+                class="btn btn-warning btn-sm mb-2 text-nowrap"
+                th:if="${depoimento.perfilCriador.id == perfilLogado.id}"
+                >Editar</a>
+
+                <form th:action="@{/depoimentos/deletar(id=${depoimento.id})}" method="post" style="display:inline;" class="form-control-button">
+                <button type="submit" class="btn btn-danger btn-sm text-nowrap"
+                        th:if="${depoimento.perfilCriador.id == perfilLogado.id}"
+                        onclick="return confirm('Tem certeza que deseja excluir este depoimento?');">Excluir</button>
+                 </form>
             </div>
         </td>
         </tr>

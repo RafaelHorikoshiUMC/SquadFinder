@@ -19,11 +19,6 @@
     <h1 div class="container mt-4" th:fragment="content">Editar Sugestão De Jogo</h1> </div>
 
   <form th:action="@{'/sugestoesDeJogos/atualizar/' + ${sugestaoDeJogo.id}}" th:object="${sugestaoDeJogo}" method="post" class="row g-3 px-3">
-    <div class="col-12 col-md-12 mb-3">
-      <label for="id" class="form-label">ID</label>
-      <input type="text" th:value="${sugestaoDeJogo.id}" id="id" class="form-control" disabled/>
-      <input type="hidden" name="id" th:value="${sugestaoDeJogo.id}">
-    </div>
 
     <div class="col-12 col-md-12 mb-3">
       <label for="nomeDoJogoSugerido" class="form-label">Nome Do Jogo Sugerido</label>

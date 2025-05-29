@@ -103,6 +103,14 @@
                 <input type="text" th:field="*{apelido}" class="form-control" id="apelido" required>
             </div>
 
+            <div class="col-12 col-md-6">
+                <label for="jogoFavorito" class="form-label">Jogo Favorito</label>
+                <select th:field="*{jogoPreferido}" class="form-select" id="jogoFavorito" required>
+                    <option value="" disabled selected>Selecione o Jogo Favorito</option>
+                    <option th:each="jogo : ${jogos}" th:value="${jogo.id}" th:text="${jogo.nome}"></option>
+                </select>
+            </div>
+
             <div class="col-md-6">
                 <label for="nascimento" class="form-label">Ano de Nascimento</label>
                 <input type="date" th:field="*{nascimento}" class="form-control" id="nascimento" required>

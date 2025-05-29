@@ -166,4 +166,11 @@ public class PerfilService {
         return perfilRepository.findByUsuarioId(usuarioId);
     }
 
+    public Optional<Perfil> buscarPorUsuario(Usuario usuario) {
+        if (usuario == null || usuario.getId() == null) {
+            return Optional.empty();
+        }
+        return perfilRepository.findByUsuarioId(usuario.getId());
+    }
+
 }

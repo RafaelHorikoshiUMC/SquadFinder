@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Verificar Match</title>
+</head>
+<body>
+<h1>Resultado do Match</h1>
+
+<p><strong>Perfil A:</strong> <span th:text="${match.apelidoPerfilA}"></span></p>
+<p><strong>Perfil B:</strong> <span th:text="${match.apelidoPerfilB}"></span></p>
+
+<h2 th:if="${match.houveMatch}">✅ Houve match entre os perfis!</h2>
+<h2 th:unless="${match.houveMatch}">❌ Ainda não houve match.</h2>
+
+<a href="/perfis">Voltar</a>
+</body>
+</html>

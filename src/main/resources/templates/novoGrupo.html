@@ -18,16 +18,19 @@
 </div>
   <h1 class="mt-4">Cadastrar Novo Grupo</h1> </div>
 
-  <form th:action="@{/grupos/salvar}" th:object="${grupo}" method="post" class="row g-3 px-3"> <div class="col-12 col-md-6"> <label for="jogo" class="form-label">Nome do Jogo</label>
-    <input type="text" th:field="*{jogo}" class="form-control" id="jogo" required>
-  </div>
-
-    <div class="col-12 col-md-6"> <label for="criador" class="form-label">Criador do Grupo</label>
-      <input type="text" th:field="*{criador}" class="form-control" id="criador" required>
+  <form th:action="@{/grupos/salvar}" th:object="${grupo}" method="post" class="row g-3 px-3">
+    <div class="col-12 col-md-6">
+      <label for="jogo" class="form-label">Nome do Jogo </label>
+      <select th:field="*{jogo}" class="form-select" id="jogo" required>
+        <option value="" disabled selected>Selecione o Jogo Favorito</option>
+        <option th:each="jogo : ${jogos}" th:value="${jogo.id}" th:text="${jogo.nome}"></option>
+      </select>
     </div>
 
-    <div class="col-12 col-md-6"> <label for="participantes" class="form-label">Participantes</label>
-      <input type="text" th:field="*{participantes}" class="form-control" id="participantes" required>
+    <div class="mb-3">
+      <label for="limiteParticipantes" class="form-label">Número máximo de participantes</label>
+      <input type="number" class="form-control" id="limiteParticipantes"
+             th:field="*{limiteParticipantes}" min="2" max="10" required>
     </div>
 
     <div class="col-12 col-md-6"> <label for="objetivo" class="form-label">Objetivo</label>

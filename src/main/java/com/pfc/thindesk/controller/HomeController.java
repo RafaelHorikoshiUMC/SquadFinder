@@ -1,5 +1,7 @@
 package com.pfc.thindesk.controller;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
 import com.pfc.thindesk.email.dtos.RecoverDto;
 import com.pfc.thindesk.PerfilMatchDTO;
 import com.pfc.thindesk.entity.*;
@@ -9,9 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -53,8 +57,17 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "perfis";
+        return "inicial";
     }
+
+
+    @GetMapping("/debug")
+    @ResponseBody
+    public String debugAuthorities() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        return "Authorities: " + auth.getAuthorities();
+    }
+
 
     // Lista todos os jogos
     @GetMapping("/jogos")
@@ -150,6 +163,11 @@ public class HomeController {
     public String listarGrupos(Model model) {
         List<Grupo> grupos = grupoService.listarTodosGrupos();
         model.addAttribute("grupos", grupos);
+
+        String emailUsuarioLogado = SecurityContextHolder.getContext().getAuthentication().getName();
+        Perfil perfilLogado = perfilService.buscarPerfilDoUsuarioLogado(emailUsuarioLogado).orElse(null);
+        model.addAttribute("perfilLogado", perfilLogado);
+
         String fragment = "grupos :: content";
         log.info("Carregando fragmento: {}", fragment); // Log para depuração
         model.addAttribute("content", fragment);
@@ -159,6 +177,8 @@ public class HomeController {
     // Exibi o cadastro para registrar um grupo
     @GetMapping("/grupos/novo")
     public String novoCadastroGrupo(Model model) {
+        List<Jogo> jogos = jogoService.listarTodosJogos(); // Sua forma de buscar todos os jogos
+        model.addAttribute("jogos", jogos);
         model.addAttribute("grupo", new Grupo());
         return "novoGrupo";
     }
@@ -168,6 +188,8 @@ public class HomeController {
     public String editarCadastroGrupo(@PathVariable("id") String id, Model model) {
         Grupo grupo = grupoService.buscarGrupoPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado: " + id));
+        List<Jogo> jogos = jogoService.listarTodosJogos(); // Sua forma de buscar todos os jogos
+        model.addAttribute("jogos", jogos);
         model.addAttribute("grupo", grupo);
         return "editarGrupo";
     }
@@ -194,6 +216,19 @@ public class HomeController {
         return "redirect:/grupos";
     }
 
+    @PostMapping("/grupos/{id}/entrar")
+    public String entrarNoGrupo(@PathVariable String id, RedirectAttributes ra) {
+        try {
+            grupoService.entrarNoGrupo(id);
+            ra.addFlashAttribute("msgSucesso", "Você entrou no grupo com sucesso!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("msgErro", e.getMessage());
+        }
+        return "redirect:/grupos";
+    }
+
+
+
     // Lista todos os perfis
     @GetMapping("/perfis")
     public String listarPerfis(Model model) {
@@ -212,11 +247,10 @@ public class HomeController {
     @GetMapping("/perfis/novo")
     public String novoCadastroPerfil(Model model) {
         model.addAttribute("perfil", new Perfil());
-        List<String> seeds = List.of(
-                "1", "2", "3", "4", "5", "6",
-                "7", "8", "9", "10", "11", "12"
-        );
-        model.addAttribute("seeds", seeds);
+        List<Jogo> jogos = jogoService.listarTodosJogos(); // Sua forma de buscar todos os jogos
+        model.addAttribute("jogos", jogos);
+        // Também passe as seeds dos avatares se for o caso
+        model.addAttribute("seeds", List.of("1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12"));
         return "novoPerfil";
     }
 
@@ -226,11 +260,9 @@ public class HomeController {
         Perfil perfil = perfilService.buscarPerfilPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado: " + id));
         model.addAttribute("perfil", perfil);
-        List<String> seeds = List.of(
-                "1", "2", "3", "4", "5", "6",
-                "7", "8", "9", "10", "11", "12"
-        );
-        model.addAttribute("seeds", seeds);
+        List<Jogo> jogos = jogoService.listarTodosJogos(); // Sua forma de buscar todos os jogos
+        model.addAttribute("jogos", jogos);
+        model.addAttribute("seeds", List.of("1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12"));
         return "editarPerfil";
     }
 
@@ -261,6 +293,11 @@ public class HomeController {
     public String listarSugestoesDeJogos(Model model) {
         List<SugestaoDeJogo> sugestoesDeJogos = sugestaoDeJogoService.listarTodasSugestaoDeJogo();
         model.addAttribute("sugestoesDeJogos", sugestoesDeJogos);
+
+        String emailUsuarioLogado = SecurityContextHolder.getContext().getAuthentication().getName();
+        Perfil perfilLogado = perfilService.buscarPerfilDoUsuarioLogado(emailUsuarioLogado).orElse(null);
+        model.addAttribute("perfilLogado", perfilLogado);
+
         String fragment = "sugestoesDeJogos :: content";
         log.info("Carregando fragmento: {}", fragment); // Log para depuração
         model.addAttribute("content", fragment);
@@ -310,6 +347,11 @@ public class HomeController {
     public String listarDepoimentos(Model model) {
         List<Depoimento> depoimentos = depoimentoService.listarTodosDepoimentos();
         model.addAttribute("depoimentos", depoimentos);
+
+        String emailUsuarioLogado = SecurityContextHolder.getContext().getAuthentication().getName();
+        Perfil perfilLogado = perfilService.buscarPerfilDoUsuarioLogado(emailUsuarioLogado).orElse(null);
+        model.addAttribute("perfilLogado", perfilLogado);
+
         String fragment = "depoimentos :: content";
         log.info("Carregando fragmento: {}", fragment); // Log para depuração
         model.addAttribute("content", fragment);

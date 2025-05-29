@@ -21,25 +21,12 @@
     <h1 class="container mt-4" th:fragment="content">Editar Grupo</h1> </div>
 
   <form th:action="@{'/grupos/atualizar/' + ${grupo.id}}" th:object="${grupo}" method="post" class="row g-3 px-3">
-    <div class="col-12 col-md-12 mb-3">
-      <label for="id" class="form-label">ID</label>
-      <input type="text" th:value="${grupo.id}" id="id" class="form-control" disabled/>
-      <input type="hidden" name="id" th:value="${grupo.id}">
-    </div>
-
-    <div class="col-12 col-md-12 mb-3">
-      <label for="jogo" class="form-label">Nome do Jogo</label>
-      <input type="text" th:field="*{jogo}" class="form-control" id="jogo" required>
-    </div>
-
-    <div class="col-12 col-md-12 mb-3">
-      <label for="criador" class="form-label">Criador do Grupo</label>
-      <input type="text" th:field="*{criador}" class="form-control" id="criador" required>
-    </div>
-
-    <div class="col-12 col-md-12 mb-3">
-      <label for="participantes" class="form-label">Participantes</label>
-      <input type="text" th:field="*{participantes}" class="form-control" id="participantes" required>
+    <div class="col-12 col-md-6">
+      <label for="jogo" class="form-label">Nome do Jogo </label>
+      <select th:field="*{jogo}" class="form-select" id="jogo" required>
+        <option value="" disabled selected>Selecione o Jogo Favorito</option>
+        <option th:each="jogo : ${jogos}" th:value="${jogo.id}" th:text="${jogo.nome}"></option>
+      </select>
     </div>
 
     <div class="col-12 col-md-6">

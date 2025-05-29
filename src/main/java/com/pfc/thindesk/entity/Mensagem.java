@@ -21,6 +21,8 @@ public class Mensagem {
     private String destinatarioId;
     private String conteudo;
     private LocalDateTime dataHora;
+    private String grupoId; // nova propriedade para chat de grupo
+
 
     // Getters e setters
 }

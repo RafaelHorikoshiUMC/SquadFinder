@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public interface DecisaoMatchRepository extends MongoRepository<DecisaoMatch, String> {
 
-    List<DecisaoMatch> findByPerfilOrigemIdAndDeuMatch(String perfilOrigemId, boolean deuMatch);
 
     boolean existsByPerfilOrigemIdAndPerfilAlvoIdAndDeuMatch(String perfilOrigemId, String perfilAlvoId, boolean deuMatch);
 

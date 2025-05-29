@@ -1,9 +1,13 @@
 package com.pfc.thindesk.controller;
 
 import com.pfc.thindesk.entity.Grupo;
+import com.pfc.thindesk.entity.Perfil;
 import com.pfc.thindesk.service.GrupoService;
+import com.pfc.thindesk.service.PerfilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,10 +18,15 @@ public class GrupoController {
 
     @Autowired
     private GrupoService grupoService;
+    @Autowired
+    private PerfilService perfilService;
 
     // Cria um novo grupo
     @PostMapping
     public Grupo criarGrupo(@RequestBody Grupo grupo) {
+        if (grupo.getLimiteParticipantes() <= 0) {
+            grupo.setLimiteParticipantes(5); // valor padrão
+        }
         return grupoService.criarGrupo(grupo);
     }
 
@@ -51,4 +60,6 @@ public class GrupoController {
         grupoService.deletarGrupo(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }
