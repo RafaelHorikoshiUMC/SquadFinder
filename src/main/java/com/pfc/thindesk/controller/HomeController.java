@@ -49,6 +49,11 @@ public class HomeController {
         return "inicial";
     }
 
+    @GetMapping("/politicasPrivacidade")
+    public String politicasPrivacidade() {
+        return "politicasPrivacidade";
+    }
+
     // Página de login (já configurada pelo Spring Security)
     @GetMapping("/login")
     public String login() {
