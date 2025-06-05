@@ -16,6 +16,9 @@
 </div>
   <h1 class="container mt-4" th:fragment="content">Cadastrar Depoimento</h1> </div>
 
+  <div th:if="${msgSucesso}" class="alert alert-success" th:text="${msgSucesso}"></div>
+  <div th:if="${msgErro}" class="alert alert-danger" th:text="${msgErro}"></div>
+
   <form th:action="@{/depoimentos/salvar}" th:object="${depoimento}" method="post" class="row g-3 px-3"> <div class="col-12 col-md-6"> <label for="texto" class="form-label">Digite o seu depoimento</label>
     <input type="text" th:field="*{texto}" class="form-control" id="texto" required>
   </div>

@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/inicial", "/usuarios/novo", "/usuarios/salvar",
                                 "/recuperar", "/recuperar-enviado",
                                 "/recuperar-senha/**", "/atualizar-senha/**",
-                                "/senha-atualizada",
+                                "/senha-atualizada","/politicasPrivacidade",
                                 "/recuperar", "/login", "/css/**", "/dist/**",
                                 "/plugins/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin", "/admin/**", "/api/usuario/admin").hasRole("ADMIN")

@@ -16,11 +16,10 @@ public class Mensagem {
 
     @Id
     private String id;
-
     private String remetenteId;
     private String destinatarioId;
     private String conteudo;
     private LocalDateTime dataHora;
+    private String grupoId;
 
-    // Getters e setters
 }

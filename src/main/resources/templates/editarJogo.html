@@ -22,12 +22,6 @@
     <form th:action="@{'/jogos/atualizar/' + ${jogo.id}}" th:object="${jogo}" method="post" class="row g-3">
 
         <div class="col-md-12 mb-3">
-            <label for="id" class="form-label">ID</label>
-            <input type="text" th:value="${jogo.id}" id="id" class="form-control" disabled/>
-            <input type="hidden" name="id" th:value="${jogo.id}">
-        </div>
-
-        <div class="col-md-12 mb-3">
             <label for="nome" class="form-label">Nome</label>
             <input type="text" th:field="*{nome}" id="nome" class="form-control" required/>
         </div>

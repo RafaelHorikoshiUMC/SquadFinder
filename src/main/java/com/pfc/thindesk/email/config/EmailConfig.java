@@ -3,6 +3,7 @@ package com.pfc.thindesk.email.config;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -12,6 +13,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 public class EmailConfig {
 
     // Define um TemplateResolver específico para templates de e-mail (busca em classpath: templates/)
+    @Primary
     @Bean
     @Qualifier("emailTemplateResolver")
     public ITemplateResolver emailTemplateResolver() {

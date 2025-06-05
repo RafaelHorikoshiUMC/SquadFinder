@@ -70,6 +70,8 @@
        Por exemplo, o conteúdo principal pode precisar de um margin-left em telas grandes
        para não ficar atrás da sidebar. O script.js deve cuidar do toggle. */
 </style>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 </head>
 <body>
 
@@ -104,8 +106,20 @@
             </div>
 
             <div class="col-md-6">
+                <label for="jogoFavorito" class="form-label">Jogo Favorito</label>
+                <select id="jogoFavorito" name="jogoPreferido.id" class="form-select js-select2" required>
+                    <option th:if="${perfil.jogoPreferido != null}"
+                            th:value="${perfil.jogoPreferido.id}"
+                            th:text="${perfil.jogoPreferido.nome}"
+                            selected>
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-6">
                 <label for="nascimento" class="form-label">Ano de Nascimento</label>
-                <input type="date" th:field="*{nascimento}" class="form-control" id="nascimento" required>
+                <input type="date" th:field="*{nascimento}" class="form-control" id="nascimento"
+                       th:attr="min=${dataMinNascimento}, max=${dataMaxNascimento}" required>
             </div>
 
             <div class="col-md-6">
@@ -216,28 +230,36 @@
     function ensureAvatarSelected() {
         const avatarField = document.getElementById('fotoUrl');
         if (!avatarField.value) {
-            // Se o usuário não selecionou um novo, mantém o avatar existente.
-            // Se for um perfil novo e não houver fotoUrl, você pode definir um padrão ou deixar vazio se for permitido.
-            avatarField.value = /*[[${perfil.fotoUrl}]]*/ ''; // Mantém o valor original se não for alterado
+            avatarField.value = /*[[${perfil.fotoUrl}]]*/ '';
         }
     }
 
-    // Se o seu script.js já manipula o toggle da sidebar, não é necessário adicionar mais JS aqui para isso.
-    // Exemplo de como o toggle pode funcionar (geralmente estaria no seu script.js):
-    /*
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleBtn = document.querySelector('.toggle-btn');
-        const sidebar = document.querySelector('aside'); // ou a classe/id da sua sidebar
-        const mainContent = document.querySelector('.container'); // ou um wrapper do conteúdo principal
-
-        if (toggleBtn && sidebar) {
-            toggleBtn.addEventListener('click', function() {
-                sidebar.classList.toggle('active'); // 'active' seria a classe que mostra a sidebar no mobile
-                // Você pode querer adicionar uma classe ao mainContent também para escurecer ou empurrar
-            });
-        }
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#jogoFavorito').select2({
+            placeholder: "Selecione o Jogo Favorito",
+            ajax: {
+                url: '/jogos/buscar',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { termo: params.term };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.map(jogo => ({
+                            id: jogo.id,
+                            text: jogo.nome
+                        }))
+                    };
+                },
+                cache: true
+            }
+        });
     });
-    */
 </script>
 </body>
 </html>

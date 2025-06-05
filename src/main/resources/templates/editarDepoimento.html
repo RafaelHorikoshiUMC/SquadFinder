@@ -15,10 +15,7 @@
 </div>
   <h1 class="container mt-4" th:fragment="content">Editar Depoimento</h1> </div>
 
-  <form th:action="@{'/depoimentos/atualizar/' + ${depoimento.id}}" th:object="${depoimento}" method="post" class="row g-3 px-3"> <div class="col-12 col-md-12 mb-3"> <label for="id" class="form-label">ID</label>
-    <input type="text" th:value="${depoimento.id}" id="id" class="form-control" disabled/>
-    <input type="hidden" name="id" th:value="${depoimento.id}">
-  </div>
+  <form th:action="@{'/depoimentos/atualizar/' + ${depoimento.id}}" th:object="${depoimento}" method="post" class="row g-3 px-3">
 
     <div class="col-12 col-md-12 mb-3"> <label for="texto" class="form-label">Digite o seu depoimento</label>
       <input type="text" th:field="*{texto}" id="texto" class="form-control" required/>

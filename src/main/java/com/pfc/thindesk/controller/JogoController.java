@@ -3,52 +3,89 @@ package com.pfc.thindesk.controller;
 import com.pfc.thindesk.entity.Jogo;
 import com.pfc.thindesk.service.JogoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/jogo")
+@Controller
+@RequestMapping("/jogos")
 public class JogoController {
 
     @Autowired
     private JogoService jogoService;
 
-    // Cria um novo jogo
-    @PostMapping
-    public Jogo criarJogo(@RequestBody Jogo jogo) {
-        return jogoService.criarJogo(jogo);
-    }
-
-    // Lista todas os jogos
+    // Lista todos os jogos
     @GetMapping
-    public List<Jogo> listarJogos() {
-        return jogoService.listarTodosJogos();
+    public String listarJogos(@RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String termo, Model model) {
+        Pageable pageable = PageRequest.of(page, 25);
+        Page<Jogo> jogosPage = jogoService.buscarJogosPaginados(termo, pageable);
+
+        model.addAttribute("jogos", jogosPage.getContent());
+        model.addAttribute("paginaAtual", page);
+        model.addAttribute("totalPaginas", jogosPage.getTotalPages());
+        model.addAttribute("termo", termo);
+
+        return "jogos";
     }
 
-    // Busca um jogo por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Jogo> buscarJogoPorId(@PathVariable String id) {
-        return jogoService.buscarJogoPorId(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    // Exibi o cadastro para registrar um jogo
+    @GetMapping("/novo")
+    public String novoCadastroJogo(Model model) {
+
+        model.addAttribute("jogo", new Jogo());
+        return "novoJogo";
     }
 
-    // Atualiza um jogo
-    @PutMapping("/{id}")
-    public ResponseEntity<Jogo> atualizarJogo(@PathVariable String id, @RequestBody Jogo jogo) {
-        Jogo jogoAtualizado = jogoService.atualizarJogo(id, jogo);
-        if (jogoAtualizado != null) {
-            return ResponseEntity.ok(jogoAtualizado);
-        }
-        return ResponseEntity.notFound().build();
+    // Exibi o cadastro para editar um jogo existente
+    @GetMapping("/editar/{id}")
+    public String editarCadastroJogo(@PathVariable("id") String id, Model model) {
+        Jogo jogo = jogoService.buscarJogoPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado: " + id));
+        model.addAttribute("jogo", jogo);
+        return "editarJogo";
+    }
+
+    // Salva um novo jogo
+    @PostMapping("/salvar")
+    public String salvarJogo(@ModelAttribute Jogo jogo, RedirectAttributes redirectAttributes) {
+        jogoService.criarJogo(jogo);
+        redirectAttributes.addFlashAttribute("msgSucesso", "Jogo cadastrado com sucesso!");
+        return "redirect:/jogos";
     }
 
     // Deleta um jogo
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarJogo(@PathVariable String id) {
-        jogoService.deletarJogo(id);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/deletar")
+    public String deletarJogo(@RequestParam("id") String id, RedirectAttributes redirectAttributes) {
+        boolean deletado = jogoService.deletarJogo(id);
+        if (deletado) {
+            redirectAttributes.addFlashAttribute("msgSucesso", "Jogo deletado com sucesso!");
+        } else {
+            redirectAttributes.addFlashAttribute("msgErro", "Jogo não encontrado.");
+        }
+        return "redirect:/jogos";
     }
+
+    // Atualiza um jogo
+    @PostMapping("/atualizar/{id}")
+    public String atualizarJogo(@PathVariable("id") String id, @ModelAttribute("jogo") Jogo jogo, RedirectAttributes redirectAttributes) {
+        jogo.setId(id);
+        jogoService.atualizarJogo(id, jogo);
+        redirectAttributes.addFlashAttribute("msgSucesso", "Jogo atualizado com sucesso!");
+        return "redirect:/jogos";
+    }
+
+    @GetMapping("/buscar")
+    @ResponseBody
+    public ResponseEntity<List<Jogo>> buscarJogos(@RequestParam String termo) {
+        List<Jogo> jogos = jogoService.buscarJogosPorTermo(termo);
+        return ResponseEntity.ok(jogos);
+    }
+
 }

@@ -1,8 +1,13 @@
 package com.pfc.thindesk.service;
 
 import com.pfc.thindesk.entity.Depoimento;
+import com.pfc.thindesk.entity.Perfil;
+import com.pfc.thindesk.entity.Usuario;
 import com.pfc.thindesk.repository.DepoimentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,14 +19,24 @@ public class DepoimentoService {
 
     @Autowired
     private DepoimentoRepository depoimentoRepository;
+    @Autowired
+    private PerfilService perfilService;
 
     // Cria um novo Depoimento
     public Depoimento criarDepoimento(Depoimento depoimento) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Perfil perfil = perfilService.buscarPerfilDoUsuarioLogado(email)
+                .orElseThrow(() -> new RuntimeException("Perfil do usuário não encontrado"));
+
         LocalDateTime agora = LocalDateTime.now();
+        depoimento.setCriador(perfil.getApelido());
+        depoimento.setPerfilCriador(perfil);
         depoimento.setDataCriacao(agora);
         depoimento.setDataAtualizacao(agora);
+
         return depoimentoRepository.save(depoimento);
     }
+
 
     // Busca todos os Depoimentos
     public List<Depoimento> listarTodosDepoimentos() {
@@ -34,19 +49,54 @@ public class DepoimentoService {
     }
 
     // Atualizar um Depoimento
-    public Depoimento atualizarDepoimento(String id, Depoimento depoimento) {
+    public Depoimento atualizarDepoimento(String id, Depoimento novoDepoimento) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Perfil perfilLogado = perfilService.buscarPerfilDoUsuarioLogado(email)
+                .orElseThrow(() -> new RuntimeException("Perfil do usuário não encontrado"));
+
         Optional<Depoimento> existente = depoimentoRepository.findById(id);
         if (existente.isPresent()) {
             Depoimento original = existente.get();
-            original.setTexto(depoimento.getTexto());
+            if (!original.getPerfilCriador().getId().equals(perfilLogado.getId())) {
+                throw new SecurityException("Você não tem permissão para editar este depoimento.");
+            }
+
+            original.setTexto(novoDepoimento.getTexto());
             original.setDataAtualizacao(LocalDateTime.now());
             return depoimentoRepository.save(original);
         }
         return null;
     }
 
+
     // Deleta um Depoimento
     public void deletarDepoimento(String id) {
-        depoimentoRepository.deleteById(id);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Perfil perfilLogado = perfilService.buscarPerfilDoUsuarioLogado(email)
+                .orElseThrow(() -> new RuntimeException("Perfil do usuário não encontrado"));
+
+        Optional<Depoimento> existente = depoimentoRepository.findById(id);
+        if (existente.isPresent()) {
+            Depoimento original = existente.get();
+
+            boolean Criador = original.getPerfilCriador().getId().equals(perfilLogado.getId());
+            boolean Admin = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                    .stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+            if (!Criador && !Admin) {
+                throw new SecurityException("Você não tem permissão para excluir este depoimento.");
+            }
+            depoimentoRepository.deleteById(id);
+        }
     }
+
+    public Page<Depoimento> buscarDepoimentosPaginados(String termo, Pageable pageable) {
+        if (termo != null && !termo.trim().isEmpty()) {
+            return depoimentoRepository.buscarPorTermo(termo, pageable);
+        } else {
+            return depoimentoRepository.findAll(pageable);
+        }
+    }
+
 }

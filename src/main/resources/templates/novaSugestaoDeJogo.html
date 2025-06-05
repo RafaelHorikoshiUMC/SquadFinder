@@ -16,6 +16,9 @@
 </div>
   <h1 class="mt-4">Criar Nova Sugestão</h1></div>
 
+  <div th:if="${msgSucesso}" class="alert alert-success" th:text="${msgSucesso}"></div>
+  <div th:if="${msgErro}" class="alert alert-danger" th:text="${msgErro}"></div>
+
   <form th:action="@{/sugestoesDeJogos/salvar}" th:object="${sugestaoDeJogo}" method="post" class="row g-3 px-3"> <div class="col-12 col-md-6"> <label for="nomeDoJogoSugerido" class="form-label">Nome Do Jogo Sugerido</label>
     <input type="text" th:field="*{nomeDoJogoSugerido}" class="form-control" id="nomeDoJogoSugerido" required>
   </div>

@@ -3,9 +3,14 @@ package com.pfc.thindesk.service;
 import com.pfc.thindesk.email.EmailService;
 import com.pfc.thindesk.email.EmailTemplate;
 import com.pfc.thindesk.email.dtos.RecoverDto;
+import com.pfc.thindesk.entity.Grupo;
+import com.pfc.thindesk.entity.Perfil;
 import com.pfc.thindesk.entity.Usuario;
-import com.pfc.thindesk.repository.UsuarioRepository;
+import com.pfc.thindesk.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -19,6 +24,28 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PerfilRepository perfilRepository;
+
+    // Deleta os grupos criados pelo usuário
+    @Autowired
+    private GrupoRepository grupoRepository;
+
+    // Deleta sugestões de jogos feitas pelo usuário
+    @Autowired
+    private SugestaoDeJogoRepository sugestaoDeJogoRepository;
+
+    // Deleta depoimentos escritos pelo usuário
+    @Autowired
+    private DepoimentoRepository depoimentoRepository;
+
+    // Deleta decisões de match feitas pelo usuário ou recebidas
+    @Autowired
+    private DecisaoMatchRepository decisaoMatchRepository;
+
+    @Autowired
+    private PerfilService perfilService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -107,10 +134,14 @@ public class UsuarioService {
         return usuarioRepository.findById(id);
     }
 
-    // Busca o Usuario por Email
-    public Usuario buscarUsuarioPorEmail(String email) {
+    public Usuario buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o e-mail: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
+    }
+
+    public Usuario buscarPorUsername(String nome) {
+        return usuarioRepository.findByNome(nome)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + nome));
     }
 
     // Atualizar um Usuario
@@ -145,6 +176,56 @@ public class UsuarioService {
 
     // Deleta um Usuario
     public void deletarUsuario(String id) {
+        // Verifica se o usuário existe
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Buscar o perfil vinculado ao usuário
+        Optional<Perfil> perfilOptional = perfilRepository.findByUsuarioId(id);
+        if (perfilOptional.isPresent()) {
+            Perfil perfil = perfilOptional.get();
+            String perfilId = perfil.getId();
+
+            // Deleta depoimentos vinculados ao perfil
+            depoimentoRepository.deleteByPerfilCriador(perfil);
+
+            // Deleta todas as decisões de match onde este perfil é origem ou destino
+            decisaoMatchRepository.deleteByPerfilOrigemId(perfilId);
+            decisaoMatchRepository.deleteByPerfilAlvoId(perfilId);
+
+            // Deleta sugestões de jogos associadas ao perfil
+            sugestaoDeJogoRepository.deleteByPerfilCriador(perfil);
+
+            // Deleta grupos criados pelo perfil
+            List<Grupo> gruposCriados = grupoRepository.findByPerfilCriador(perfil);
+            for (Grupo grupo : gruposCriados) {
+                grupoRepository.delete(grupo);
+            }
+
+            // Deleta o perfil em si
+            perfilRepository.deleteById(perfilId);
+        }
+
+        // Deleta sugestões de jogos criadas via campo 'criador' (String)
+        sugestaoDeJogoRepository.deleteByCriador(id);
+
+        // Finalmente, deleta o usuário
         usuarioRepository.deleteById(id);
     }
+
+    public Page<Usuario> buscarUsuarios(String termo, Pageable pageable) {
+        if (termo == null || termo.isBlank()) {
+            return usuarioRepository.findAll(pageable);
+        }
+
+        List<Perfil> perfis = perfilService.buscarPorApelidoContendo(termo);
+        List<String> idsUsuariosPorApelido = perfis.stream()
+                .map(Perfil::getUsuarioId)
+                .toList();
+
+        return usuarioRepository.findByNomeContainingIgnoreCaseOrEmailContainingIgnoreCaseOrIdIn(
+                termo, termo, idsUsuariosPorApelido, pageable);
+    }
+
+
 }

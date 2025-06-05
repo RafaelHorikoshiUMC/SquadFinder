@@ -1,105 +1,124 @@
 package com.pfc.thindesk.controller;
 
-import com.pfc.thindesk.MatchDTO;
-import com.pfc.thindesk.PerfilMatchDTO;
+import com.pfc.thindesk.entity.Jogo;
 import com.pfc.thindesk.entity.Perfil;
 import com.pfc.thindesk.service.DecisaoMatchService;
+import com.pfc.thindesk.service.JogoService;
 import com.pfc.thindesk.service.PerfilService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
-@RestController
-@RequestMapping("/api/perfil")
+@Controller
+@RequestMapping("/perfis")
 public class PerfilController {
+
+    private static final Logger log = LoggerFactory.getLogger(PerfilController.class);
 
     @Autowired
     private PerfilService perfilService;
 
     @Autowired
+    private JogoService jogoService;
+
+    @Autowired
     private DecisaoMatchService decisaoMatchService;
-    // Cria um novo perfil
-    @PostMapping
-    public ResponseEntity<?> criarPerfil(@RequestBody Perfil perfil) {
-        try {
-            // Define o usuário autenticado no perfil antes de salvar
-            String usuarioIdLogado = perfilService.getUsuarioAutenticado();
-            if (usuarioIdLogado == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Usuário não está autenticado.");
-            }
-            perfil.setUsuarioId(usuarioIdLogado);
-
-            Perfil novoPerfil = perfilService.criarPerfil(perfil);
-            return ResponseEntity.status(HttpStatus.CREATED).body(novoPerfil);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Já existe um perfil associado a este usuário.");
-        }
-    }
-
 
     // Lista todos os perfis
     @GetMapping
-    public ResponseEntity<List<Perfil>> listarPerfisDoUsuario() {
+    public String listarPerfis(Model model) {
+        // Obtém apenas os perfis do usuário autenticado
         List<Perfil> perfis = perfilService.listarPerfisDoUsuario();
-        return ResponseEntity.ok(perfis);
+        model.addAttribute("perfis", perfis);
+
+        String fragment = "perfis :: content";
+        log.info("Carregando fragmento: {}", fragment); // Log para depuração
+        model.addAttribute("content", fragment);
+
+        return "perfis";
     }
 
+    // Exibi o cadastro para registrar um perfil
+    @GetMapping("/novo")
+    public String novoCadastroPerfil(Model model) {
+        LocalDate hoje = LocalDate.now();
+        String dataMinNascimento = hoje.minusYears(100).toString();
+        String dataMaxNascimento = hoje.minusYears(14).toString();
 
-    // Busca um perfil por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Perfil> buscarPerfilPorId(@PathVariable String id) {
-        return perfilService.buscarPerfilPorId(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        model.addAttribute("dataMinNascimento", dataMinNascimento);
+        model.addAttribute("dataMaxNascimento", dataMaxNascimento);
+        model.addAttribute("perfil", new Perfil());
+        List<Jogo> jogos = jogoService.listarTodosJogos(); // Sua forma de buscar todos os jogos
+        model.addAttribute("jogos", jogos);
+        // Também passe as seeds dos avatares se for o caso
+        model.addAttribute("seeds", List.of("1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12"));
+        return "novoPerfil";
     }
 
-    // Atualiza um perfil
-    @PutMapping("/{id}")
-    public ResponseEntity<Perfil> atualizarPerfil(@PathVariable String id, @RequestBody Perfil perfil) {
-        Perfil perfilAtualizado = perfilService.atualizarPerfil(id, perfil);
-        if (perfilAtualizado != null) {
-            return ResponseEntity.ok(perfilAtualizado);
-        }
-        return ResponseEntity.notFound().build();
+    // Exibi o cadastro para editar um perfil existente
+    @GetMapping("/editar/{id}")
+    public String editarCadastroPerfil(@PathVariable("id") String id, Model model) {
+        LocalDate hoje = LocalDate.now();
+        String dataMinNascimento = hoje.minusYears(100).toString();
+        String dataMaxNascimento = hoje.minusYears(14).toString();
+        Perfil perfil = perfilService.buscarPerfilPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado: " + id));
+        model.addAttribute("dataMinNascimento", dataMinNascimento);
+        model.addAttribute("dataMaxNascimento", dataMaxNascimento);
+        model.addAttribute("perfil", perfil);
+        List<Jogo> jogos = jogoService.listarTodosJogos(); // Sua forma de buscar todos os jogos
+        model.addAttribute("jogos", jogos);
+        model.addAttribute("seeds", List.of("1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12"));
+        return "editarPerfil";
+    }
+
+    // Salva um novo perfil
+    @PostMapping("/salvar")
+    public String salvarPerfil(@ModelAttribute Perfil perfil, RedirectAttributes redirectAttributes) {
+        perfilService.criarPerfil(perfil);
+        redirectAttributes.addFlashAttribute("msgSucesso", "Perfil criado com sucesso!");
+        return "redirect:/perfis";
     }
 
     // Deleta um perfil
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarPerfil(@PathVariable String id) {
+    @PostMapping("/deletar")
+    public String deletarPerfil(@RequestParam("id") String id) {
         perfilService.deletarPerfil(id);
-        return ResponseEntity.noContent().build();
+        return "redirect:/perfis";
     }
 
-    @GetMapping("/perfis/compativeis")
-    public String mostrarPerfisCompativeis(Model model) {
-        Optional<Perfil> meuPerfil = perfilService.listarPerfisDoUsuario().stream().findFirst();
-
-        if (meuPerfil.isEmpty()) {
-            return "redirect:/perfis";
-        }
-
-        List<PerfilMatchDTO> perfisCompatíveis = perfilService.buscarPerfisNaoReagidos(meuPerfil.get());
-        model.addAttribute("perfilAtual", meuPerfil.get());
-        model.addAttribute("perfisCompativeis", perfisCompatíveis);
-        return "perfis/compativeis"; // Caminho para o arquivo .html
+    // Atualiza um perfil
+    @PostMapping("/atualizar/{id}")
+    public String atualizarPerfil(@PathVariable("id") String id, @ModelAttribute("perfil") Perfil perfil, RedirectAttributes redirectAttributes) {
+        perfil.setId(id);
+        perfilService.atualizarPerfil(id, perfil);
+        redirectAttributes.addFlashAttribute("msgSucesso", "Perfil atualizado com sucesso!");
+        return "redirect:/perfis";
     }
 
-    @GetMapping("/perfis/match")
-    public String verificarMatchEntrePerfis(
-            @RequestParam("perfilA") String perfilAId,
-            @RequestParam("perfilB") String perfilBId,
-            Model model) {
-        MatchDTO match = decisaoMatchService.verificarMatch(perfilAId, perfilBId);
-        model.addAttribute("match", match);
-        return "match";
+    //O usuario Da Match Sim
+    @PostMapping("/{perfilOrigemId}/match/{perfilAlvoId}/sim")
+    public ResponseEntity<Void> darMatchSim(
+            @PathVariable("perfilOrigemId") String perfilOrigemId,
+            @PathVariable("perfilAlvoId") String perfilAlvoId) {
+        decisaoMatchService.salvarDecisao(perfilOrigemId, perfilAlvoId, true);
+        return ResponseEntity.ok().build();
     }
 
+    //O usuario Da Match Sim
+    @PostMapping("/{perfilOrigemId}/match/{perfilAlvoId}/nao")
+    public ResponseEntity<Void> darMatchNao(
+            @PathVariable("perfilOrigemId") String perfilOrigemId,
+            @PathVariable("perfilAlvoId") String perfilAlvoId) {
+        decisaoMatchService.salvarDecisao(perfilOrigemId, perfilAlvoId, false);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -2,12 +2,15 @@ package com.pfc.thindesk.service;
 
 import com.pfc.thindesk.PerfilMatchDTO;
 import com.pfc.thindesk.entity.DecisaoMatch;
+import com.pfc.thindesk.entity.Jogo;
 import com.pfc.thindesk.entity.Perfil;
 import com.pfc.thindesk.entity.Usuario;
 import com.pfc.thindesk.repository.DecisaoMatchRepository;
 import com.pfc.thindesk.repository.PerfilRepository;
 import com.pfc.thindesk.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
@@ -75,11 +78,17 @@ public class PerfilService {
                 .filter(perfil -> usuarioAutenticado.equals(perfil.getUsuarioId())); // Verifica null aqui
     }
 
+    //Busca Perfis Por Ids
     public List<Perfil> buscarPerfisPorIds(Set<String> ids) {
         return perfilRepository.findAllById(ids);
     }
 
+    //Listar Todos Perfis
+    public List<Perfil> listarTodosPerfis() {
+        return perfilRepository.findAll();
+    }
 
+    //Busca Perfil Por Id Sem Restricao
     public Optional<Perfil> buscarPerfilPorIdSemRestricao(String id) {
         return perfilRepository.findById(id);
     }
@@ -115,48 +124,54 @@ public class PerfilService {
         perfilRepository.delete(perfilExistente);
     }
 
-    // Algoritmo de compatibilidade
-    public List<PerfilMatchDTO> buscarPerfisNaoReagidos(Perfil perfilAtual) {
+    //Obter perfis não reagidos
+    public  List<Perfil> obterPerfisNaoReagidos(Perfil perfilAtual) {
         String perfilOrigemId = perfilAtual.getId();
 
-        // 1. Busca IDs dos perfis já reagidos
-        List<DecisaoMatch> decisoes = decisaoMatchRepository.findByPerfilOrigemId(perfilOrigemId);
-        Set<String> idsJaReagidos = decisoes.stream()
+        Set<String> idsJaReagidos = decisaoMatchRepository.findByPerfilOrigemId(perfilOrigemId).stream()
                 .map(DecisaoMatch::getPerfilAlvoId)
                 .collect(Collectors.toSet());
 
-        // 2. Busca todos os perfis e filtra os que ainda não foram reagidos
-        List<Perfil> todosPerfis = perfilRepository.findAll();
-        List<PerfilMatchDTO> resultados = new ArrayList<>();
-
-        for (Perfil outroPerfil : todosPerfis) {
-            if (!outroPerfil.getId().equals(perfilOrigemId) && !idsJaReagidos.contains(outroPerfil.getId())) {
-                int atributosEmComum = 0;
-                int totalAtributos = 55;
-
-                if (camposIguais(perfilAtual.getPlataforma(), outroPerfil.getPlataforma())) atributosEmComum += 15;
-                if (camposIguais(perfilAtual.getComunicacao(), outroPerfil.getComunicacao())) atributosEmComum += 10;
-                if (camposIguais(perfilAtual.getPeriodoOnline(), outroPerfil.getPeriodoOnline())) atributosEmComum += 12;
-                if (camposIguais(perfilAtual.getEstiloDeJogo(), outroPerfil.getEstiloDeJogo())) atributosEmComum += 8;
-                if (camposIguais(perfilAtual.getGeneroPreferidoPrincipal(), outroPerfil.getGeneroPreferidoPrincipal())) atributosEmComum += 6;
-                if (camposIguais(perfilAtual.getGeneroPreferidoSecundario(), outroPerfil.getGeneroPreferidoSecundario())) atributosEmComum += 3;
-                if (camposIguais(perfilAtual.getEstadoCivil(), outroPerfil.getEstadoCivil())) atributosEmComum += 1;
-
-                int porcentagem = (int) ((atributosEmComum / (double) totalAtributos) * 100);
-                resultados.add(new PerfilMatchDTO(outroPerfil, porcentagem));
-            }
-        }
-
-        return resultados.stream()
-                .sorted(Comparator.comparingInt(PerfilMatchDTO::scorePercentual).reversed())
+        return perfilRepository.findAll().stream()
+                .filter(outro -> !outro.getId().equals(perfilOrigemId))
+                .filter(outro -> !idsJaReagidos.contains(outro.getId()))
                 .toList();
     }
 
-    // Método auxiliar para comparação segura de strings
+    // Algoritmo de compatibilidade
+    public  List<PerfilMatchDTO> calcularCompatibilidade(Perfil perfilAtual, List<Perfil> outrosPerfis) {
+        List<PerfilMatchDTO> resultados = new ArrayList<>();
+
+        for (Perfil outroPerfil : outrosPerfis) {
+            int atributosEmComum = 0;
+            int totalAtributos = 60;
+
+            if (camposIguais(perfilAtual.getPlataforma(), outroPerfil.getPlataforma())) atributosEmComum += 15;
+            if (camposIguais(perfilAtual.getComunicacao(), outroPerfil.getComunicacao())) atributosEmComum += 10;
+            if (camposIguais(perfilAtual.getPeriodoOnline(), outroPerfil.getPeriodoOnline())) atributosEmComum += 12;
+            if (camposIguais(perfilAtual.getEstiloDeJogo(), outroPerfil.getEstiloDeJogo())) atributosEmComum += 8;
+            if (camposIguais(perfilAtual.getGeneroPreferidoPrincipal(), outroPerfil.getGeneroPreferidoPrincipal())) atributosEmComum += 6;
+
+            String nomeJogoAtual = perfilAtual.getJogoPreferido() != null ? perfilAtual.getJogoPreferido().getNome() : null;
+            String nomeJogoOutro = outroPerfil.getJogoPreferido() != null ? outroPerfil.getJogoPreferido().getNome() : null;
+            if (camposIguais(nomeJogoAtual, nomeJogoOutro)) atributosEmComum += 5;
+
+            if (camposIguais(perfilAtual.getGeneroPreferidoSecundario(), outroPerfil.getGeneroPreferidoSecundario())) atributosEmComum += 3;
+            if (camposIguais(perfilAtual.getEstadoCivil(), outroPerfil.getEstadoCivil())) atributosEmComum += 1;
+
+            int porcentagem = (int) ((atributosEmComum / (double) totalAtributos) * 100);
+            resultados.add(new PerfilMatchDTO(outroPerfil, porcentagem));
+        }
+
+        return resultados;
+    }
+
+    // Metodo auxiliar para comparação segura de strings
     private boolean camposIguais(String a, String b) {
         return (a == null && b == null) || (a != null && a.equalsIgnoreCase(b));
     }
 
+    //Busca o Perfil Do Usuario Logado
     public Optional<Perfil> buscarPerfilDoUsuarioLogado(String email) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
         if (usuarioOpt.isEmpty()) {
@@ -165,5 +180,25 @@ public class PerfilService {
         String usuarioId = usuarioOpt.get().getId();  // pega o ID do usuário
         return perfilRepository.findByUsuarioId(usuarioId);
     }
+
+    //Busca Pelo  Usuario
+    public Optional<Perfil> buscarPorUsuario(Usuario usuario) {
+        if (usuario == null || usuario.getId() == null) {
+            return Optional.empty();
+        }
+        return perfilRepository.findByUsuarioId(usuario.getId());
+    }
+
+    public Page<Perfil> buscarTodos(Pageable pageable) {
+        return perfilRepository.findAll(pageable);
+    }
+
+    public List<Perfil> buscarPorApelidoContendo(String termo) {
+        if (termo == null || termo.isBlank()) {
+            return perfilRepository.findAll();
+        }
+        return perfilRepository.findByApelidoContainingIgnoreCase(termo);
+    }
+
 
 }

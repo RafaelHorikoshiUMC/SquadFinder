@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+
 
 import java.time.LocalDateTime;
 
@@ -17,8 +19,10 @@ public class Depoimento {
     @Id
     private String id;
     private String texto;
-    private Usuario autor;
+    private String criador;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataAtualizacao;
+    @DBRef
+    private Perfil perfilCriador;
 }
 
