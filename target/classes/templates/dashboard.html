@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @media (max-width: 767.98px) {
+      .sidebar {
+        display: none; /* Esconde a sidebar por padrão em telas pequenas */
+      }
+      .sidebar.active {
+        display: block; /* Mostra a sidebar quando ativa */
+      }
+      .header-mobile-flex {
+        margin-top: 1.75rem; /* Aumenta a margem superior ao container do título e botão */
+      }
+      .header-mobile-flex h1 {
+        margin-left: 0.5rem; /* Adiciona margem à esquerda do título */
+      }
+    }
+  </style>
+</head>
+<body class="m-0 p-0">
+
+<div class="row g-0">
+  <aside class="col-12 col-md-3 col-lg-2 sidebar">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  </aside>
+
+  <div id="content" class="col-12 col-md-9 col-lg-10 p-2 p-md-4">
+    <div class="d-flex align-items-center mb-4 header-mobile-flex">
+      <div class="toggle-btn btn btn-dark d-md-none me-3" id="menu-toggle">
+        <span>&#9776;</span>
+      </div>
+      <h1 class="mt-2">Dashboard</h1> <!-- Ajuste na margem superior do título -->
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card h-100">
+          <div class="card-header">Gráfico de Entidades Cadastradas</div>
+          <div class="card-body">
+            <div style="position: relative; height: 100%; min-height: 400px; width: 100%;">
+              <canvas id="quantidadeJogosChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('menu-toggle').addEventListener('click', function() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('active');
+  });
+</script>
+
+<script th:inline="javascript">
+  // Variáveis JavaScript injetadas pelo Thymeleaf
+  const quantidadeDecisoes = /*[[${QuantidadeDecisoes}]]*/ 0;
+  const quantidadeDepoimentos = /*[[${QuantidadeDepoimentos}]]*/ 0;
+  const quantidadeGrupos = /*[[${QuantidadeGrupos}]]*/ 0;
+  const quantidadeJogos = /*[[${QuantidadeJogos}]]*/ 0;
+  const quantidadePerfis = /*[[${QuantidadePerfis}]]*/ 0;
+  const quantidadeSugestoes = /*[[${QuantidadeSugestoes}]]*/ 0;
+
+  // Inicializa o gráfico Chart.js
+  new Chart(document.getElementById('quantidadeJogosChart'), {
+    type: 'bar', // Tipo de gráfico: barras
+    data: {
+      labels: [ // Rótulos para o eixo X
+        'Jogos Cadastrados',
+        'Perfis Cadastrados',
+        'Decisões Cadastradas',
+        'Depoimentos Cadastrados',
+        'Grupos Cadastrados',
+        'Sugestões Cadastrados'
+      ],
+      datasets: [{
+        label: 'Quantidade', // Rótulo da série de dados
+        data: [ // Dados do gráfico
+          quantidadeJogos,
+          quantidadePerfis,
+          quantidadeDecisoes,
+          quantidadeDepoimentos,
+          quantidadeGrupos,
+          quantidadeSugestoes
+        ],
+        backgroundColor: 'rgba(75, 192, 192, 0.6)', // Cor de fundo das barras
+        borderColor: 'rgba(75, 192, 192, 1)',     // Cor da borda das barras
+        borderWidth: 1                            // Largura da borda
+      }]
+    },
+    options: {
+      responsive: true,         // O gráfico será responsivo ao tamanho do contêiner
+      maintainAspectRatio: false, // Não mantém a proporção original, permitindo que o gráfico preencha o espaço
+      plugins: {
+        legend: { display: false }, // Não exibe a legenda do gráfico
+        tooltip: { enabled: true }  // Habilita tooltips ao passar o mouse sobre as barras
+      },
+      scales: {
+        y: { // Configurações do eixo Y
+          beginAtZero: true, // Inicia o eixo Y em zero
+          ticks: {
+            precision: 0,    // Remove casas decimais dos ticks
+            stepSize: 1      // Incrementa os ticks de 1 em 1
+          }
+        },
+        x: { // Configurações do eixo X
+          ticks: {
+            maxRotation: 45, // Rotação máxima dos rótulos do eixo X
+            minRotation: 0   // Rotação mínima dos rótulos do eixo X
+          }
+        }
+      }
+    }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

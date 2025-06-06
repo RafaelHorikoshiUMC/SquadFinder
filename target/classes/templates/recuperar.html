@@ -35,12 +35,12 @@
     <div class="login-card text-center">
 
         <img th:src="@{/images/logo.png}" alt="Logo" class="logo">
-        <h3 class="mb-4">Problemas para entra?</h3>
+        <h3 class="mb-4">Problemas para entrar?</h3>
         <h6 class="mb-4">Insira seu e-mail e enviaremos um link para você voltar a acessar a sua conta</h6>
 
         <form th:action="@{/recuperar}" method="post">
             <div class="form-group mb-3">
-                <input type="text" class="form-control" id="e-mail" name="e-mail" placeholder="Digite seu e-mail" required>
+                <input type="text" class="form-control" id="email" name="email" placeholder="Digite seu e-mail" required>
             </div>
             <button type="submit" class="btn btn-dark w-100">Enviar link para login</button>
         </form>

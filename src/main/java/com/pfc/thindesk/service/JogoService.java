@@ -3,6 +3,9 @@ package com.pfc.thindesk.service;
 import com.pfc.thindesk.entity.Jogo;
 import com.pfc.thindesk.repository.JogoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,12 +17,12 @@ public class JogoService {
     @Autowired
     private JogoRepository jogoRepository;
 
-    // Cria uma nov jogo
+    // Cria uma novo jogo
     public Jogo criarJogo(Jogo jogo) {
         return jogoRepository.save(jogo);
     }
 
-    // Busca todas os jogos
+    // Busca todos os jogos
     public List<Jogo> listarTodosJogos() {
         return jogoRepository.findAll();
     }
@@ -40,7 +43,28 @@ public class JogoService {
     }
 
     // Deleta um jogo
-    public void deletarJogo(String id) {
-        jogoRepository.deleteById(id);
+    public boolean deletarJogo(String id) {
+        if (jogoRepository.existsById(id)) {
+            jogoRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
+
+    //Busca Jogos nas Paginas
+    public Page<Jogo> buscarJogosPaginados(String termo, Pageable pageable) {
+        if (termo != null && !termo.trim().isEmpty()) {
+            return jogoRepository.buscarPorTodosCampos(termo, pageable);
+        } else {
+            return jogoRepository.findAll(pageable);
+        }
+    }
+
+    // Busca e retorna os resultados em uma página
+    public List<Jogo> buscarJogosPorTermo(String termo) {
+        Pageable pageable = PageRequest.of(0, 20); // Limita a 20 resultados
+        return buscarJogosPaginados(termo, pageable).getContent();
+    }
+
 }

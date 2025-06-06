@@ -1,16 +1,45 @@
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\MongoInitConfig.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\SecurityConfig.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\controller\ChamadoController.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\controller\ClienteController.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\controller\HomeController.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\controller\HorarioAtendimentoController.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\entity\Chamado.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\entity\Cliente.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\entity\HorarioAtendimento.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\repository\ChamadoRepository.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\repository\ClienteRepository.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\repository\HorarioAtendimentoRepository.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\service\ChamadoService.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\service\ClienteService.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\thindesk\service\HorarioAtendimentoService.java
-C:\Users\ayaho\OneDrive\Documentos\NetBeansProjects\thindesk\thindesk\src\main\java\com\pfc\ThindeskApplication.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\MongoInitConfig.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\SecurityConfig.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\AdminInitializer.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\controller\ChatController.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\controller\DepoimentoController.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\controller\GrupoController.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\controller\HomeController.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\controller\JogoController.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\controller\PerfilController.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\controller\SugestaoDeJogoController.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\controller\UsuarioController.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\email\config\EmailConfig.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\email\dtos\RecoverDto.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\email\dtos\RecoverPasswordDto.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\email\EmailService.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\email\EmailTemplate.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\entity\DecisaoMatch.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\entity\Depoimento.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\entity\Grupo.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\entity\Jogo.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\entity\Mensagem.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\entity\Perfil.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\entity\SugestaoDeJogo.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\entity\Usuario.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\MatchDTO.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\PerfilMatchDTO.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\repository\DecisaoMatchRepository.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\repository\DepoimentoRepository.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\repository\GrupoRepository.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\repository\JogoRepository.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\repository\MensagemRepository.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\repository\PerfilRepository.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\repository\SugestaoDeJogoRepository.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\repository\UsuarioRepository.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\service\DecisaoMatchService.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\service\DepoimentoService.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\service\GrupoService.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\service\JogoService.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\service\PerfilService.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\service\SugestaoDeJogoService.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\service\UsuarioDetailsService.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\service\UsuarioService.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\ThymeleafConfig.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\thindesk\ThymeleafUtils.java
+C:\Users\user\Desktop\SquadFinder - Copia\src\main\java\com\pfc\ThindeskApplication.java

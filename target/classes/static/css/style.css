@@ -5,6 +5,12 @@ body {
     flex-direction: row;
 }
 
+.sidebar-div {
+    position: sticky;
+    top: 0;
+    z-index:999;
+}
+
 #sidebar {
     min-width: 250px;
     max-width: 250px;
@@ -89,4 +95,8 @@ body {
     margin-top: auto;
 }
 
+#content {
+    flex-grow: 1;
+    padding: 20px;
+}
 

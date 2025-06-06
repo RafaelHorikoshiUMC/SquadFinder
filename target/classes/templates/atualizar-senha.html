@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Atualizar Senha</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS e Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <style>
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f8f9fa;
+    }
+
+    .login-card {
+      max-width: 400px;
+      width: 100%;
+      padding: 2rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      background-color: #ffffff;
+      text-align: center;
+    }
+
+    .logo {
+      width: 100px;
+      height: auto;
+      margin-bottom: 1rem;
+    }
+
+    .password-requirements {
+      text-align: left;
+      margin-top: 0.5rem;
+    }
+
+    .password-requirements li {
+      list-style: none;
+      margin-bottom: 0.25rem;
+    }
+
+    .valid {
+      color: green;
+    }
+
+    .invalid {
+      color: red;
+    }
+
+    .toggle-password {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .error, .success {
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="login-card">
+
+    <img th:src="@{/images/logo.png}" alt="Logo" class="logo">
+    <h3 class="mb-4">Atualizar Senha</h3>
+    <h6 class="mb-4">Digite sua nova senha e confirme</h6>
+
+    <form th:action="@{'/atualizar-senha/' + ${token}}" method="post" onsubmit="return validarSenhas()">
+      <div class="form-group mb-3 position-relative">
+        <label for="senha" class="form-label">Nova Senha:</label>
+        <div class="input-group">
+          <input type="password" id="senha" name="senha" class="form-control" required oninput="validarSenhaInput()">
+          <button type="button" class="btn btn-outline-secondary" id="togglePassword" tabindex="-1" title="Mostrar/Esconder senha">
+            <i class="bi bi-eye" id="iconTogglePassword"></i>
+          </button>
+        </div>
+
+        <ul class="password-requirements" id="requisitosSenha">
+          <li id="length" class="invalid">Mínimo 8 caracteres</li>
+          <li id="uppercase" class="invalid">Letra maiúscula</li>
+          <li id="lowercase" class="invalid">Letra minúscula</li>
+          <li id="number" class="invalid">Número</li>
+          <li id="special" class="invalid">Caractere especial (!@#$%)</li>
+        </ul>
+      </div>
+
+      <div class="form-group mb-3 text-start">
+        <label for="confirmarSenha" class="form-label">Confirmar Senha:</label>
+        <div class="input-group">
+          <input type="password" id="confirmarSenha" class="form-control" required>
+          <button type="button" class="btn btn-outline-secondary" id="togglePassword1" tabindex="-1" title="Mostrar/Esconder senha">
+            <i class="bi bi-eye" id="iconTogglePassword1"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="erroSenha" class="error" style="display: none;">As senhas não coincidem.</div>
+
+      <button type="submit" class="btn btn-dark w-100">Salvar Senha</button>
+    </form>
+
+    <!-- Mensagens do servidor -->
+    <div th:if="${mensagemErro}" class="error" th:text="${mensagemErro}"></div>
+    <div th:if="${mensagemSucesso}" class="success" th:text="${mensagemSucesso}"></div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('togglePassword').addEventListener('click', function () {
+    const senhaInput = document.getElementById('senha');
+    const icon = document.getElementById('iconTogglePassword');
+    if (senhaInput.type === 'password') {
+      senhaInput.type = 'text';
+      icon.classList.remove('bi bi-eye');
+      icon.classList.add('bi bi-eye-slash');
+    } else {
+      senhaInput.type = 'password';
+      icon.classList.remove('bi bi-eye-slash');
+      icon.classList.add('bi bi-eye');
+    }
+  });
+
+  document.getElementById('togglePassword1').addEventListener('click', function () {
+    const confirmarSenhaInput = document.getElementById('confirmarSenha');
+    const icon = document.getElementById('iconTogglePassword1');
+
+    if (confirmarSenhaInput.type === 'password') {
+      confirmarSenhaInput.type = 'text';
+      icon.classList.remove('bi-eye');
+      icon.classList.add('bi-eye-slash');
+    } else {
+      confirmarSenhaInput.type = 'password';
+      icon.classList.remove('bi-eye-slash');
+      icon.classList.add('bi-eye');
+    }
+  });
+
+
+
+  function validarSenhaInput() {
+    const senha = document.getElementById('senha').value;
+    updateRequirement('length', senha.length >= 8);
+    updateRequirement('uppercase', /[A-Z]/.test(senha));
+    updateRequirement('lowercase', /[a-z]/.test(senha));
+    updateRequirement('number', /[0-9]/.test(senha));
+    updateRequirement('special', /[!@#$%^&*(),.?":{}|<>]/.test(senha));
+  }
+
+  function updateRequirement(id, isValid) {
+    const item = document.getElementById(id);
+    item.classList.toggle('valid', isValid);
+    item.classList.toggle('invalid', !isValid);
+  }
+
+  function validarSenhas() {
+    const senha = document.getElementById('senha').value;
+    const confirmar = document.getElementById('confirmarSenha').value;
+    const erroDiv = document.getElementById('erroSenha');
+
+    const requisitosValidos =
+            senha.length >= 8 &&
+            /[A-Z]/.test(senha) &&
+            /[a-z]/.test(senha) &&
+            /[0-9]/.test(senha) &&
+            /[!@#$%^&*(),.?":{}|<>]/.test(senha);
+
+    if (!requisitosValidos) {
+      alert("A senha não atende aos critérios de segurança.");
+      return false;
+    }
+
+    if (senha !== confirmar) {
+      erroDiv.style.display = "block";
+      return false;
+    }
+
+    erroDiv.style.display = "none";
+    return true;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    validarSenhaInput();
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

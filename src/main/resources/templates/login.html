@@ -36,7 +36,24 @@
             <!-- Espaço para a logo -->
             <img th:src="@{/images/logo.png}" alt="Logo" class="logo">
             <h3 class="mb-4">Bem-vindo</h3>
-            
+
+            <!-- Avisos de erro/sucesso -->
+            <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                E-mail ou senha incorretos.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
+
+            <div th:if="${msgSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${msgSucesso}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
+
+            <div th:if="${msgErro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msgErro}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
+
+
             <!-- Formulário de Login -->
             <form th:action="@{/login}"  method="post">
                 <div class="form-group mb-3">
